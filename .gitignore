@@ -1,0 +1,14 @@
+# Secrets
+.env
+
+# Run artifacts (intermediate state, exports, suppression list)
+runs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/

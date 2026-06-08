@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outreach Pipeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+/* ── Variables ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #f4f1ec;
+  --surface:     #ffffff;
+  --dark:        #111110;
+  --text:        #1c1b18;
+  --muted:       #78746d;
+  --border:      #e5e1da;
+  --purple:      #5b3fff;
+  --purple-lt:   #eeebff;
+  --green:       #15803d;
+  --green-lt:    #f0fdf4;
+  --red:         #dc2626;
+  --amber:       #b45309;
+  --amber-lt:    #fffbeb;
+  --term-bg:     #0d0d0b;
+  --term-green:  #4ade80;
+  --term-teal:   #2dd4bf;
+  --term-purple: #a78bfa;
+  --term-amber:  #fbbf24;
+  --term-dim:    #44443f;
+  --term-text:   #e5e5e2;
+  --font:        'Inter', system-ui, sans-serif;
+  --mono:        'JetBrains Mono', monospace;
+  --r:           10px;
+  --shadow:      0 2px 20px rgba(0,0,0,0.07);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; font-size:16px; }
+body { font-family:var(--font); color:var(--text); background:var(--bg); line-height:1.6; -webkit-font-smoothing:antialiased; }
+a { color:inherit; text-decoration:none; }
+button { cursor:pointer; font-family:var(--font); border:none; background:none; }
+
+/* ── Floating Pill Nav ──────────────────────────────────────────────────────── */
+.nav {
+  position:fixed; top:1.125rem; left:50%; transform:translateX(-50%);
+  z-index:200;
+  display:flex; align-items:center; gap:0.25rem;
+  background:rgba(255,255,255,0.94);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:100px;
+  padding:0.375rem 0.375rem 0.375rem 1.125rem;
+  box-shadow:0 2px 24px rgba(0,0,0,0.09);
+  white-space:nowrap;
+}
+.nav-logo { display:flex; align-items:center; gap:0.5rem; font-weight:700; font-size:0.9rem; margin-right:0.75rem; }
+.nav-logo-mark {
+  width:28px; height:28px; border-radius:7px;
+  background:var(--dark); color:#fff;
+  font-family:var(--mono); font-size:0.65rem; font-weight:500;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.nav-links { display:flex; align-items:center; gap:0.25rem; margin-right:0.75rem; }
+.nav-link {
+  font-size:0.8125rem; font-weight:500; color:var(--muted);
+  padding:0.375rem 0.75rem; border-radius:100px;
+  transition:color 0.2s, background 0.2s;
+}
+.nav-link:hover { color:var(--text); background:rgba(0,0,0,0.04); }
+.nav-btn-ghost {
+  font-size:0.8125rem; font-weight:500; color:var(--text);
+  padding:0.4rem 0.875rem; border-radius:100px;
+  border:1px solid var(--border);
+  transition:border-color 0.2s;
+}
+.nav-btn-ghost:hover { border-color:var(--dark); }
+.nav-btn-dark {
+  font-size:0.8125rem; font-weight:600; color:#fff;
+  padding:0.4rem 1rem; border-radius:100px;
+  background:var(--dark);
+  display:flex; align-items:center; gap:0.375rem;
+  transition:opacity 0.2s;
+}
+.nav-btn-dark:hover { opacity:0.85; }
+
+/* ── Hero ───────────────────────────────────────────────────────────────────── */
+.hero {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:8rem 2rem 5rem; position:relative; overflow:hidden;
+  background:var(--bg);
+}
+/* Rounded video "box" — framed by the cream background around it */
+.hero-bg {
+  position:absolute; inset:1.25rem;
+  border-radius:32px; overflow:hidden;
+  z-index:0;
+  box-shadow:0 20px 60px rgba(0,0,0,0.08);
+}
+/* Looping video background — two stacked copies crossfade for a seamless loop */
+.hero-video {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  z-index:0;
+  pointer-events:none;
+  transition:opacity 0.9s linear;
+  will-change:opacity;
+}
+/* Soft overlay — vignette to cream so motion shows in the centre,
+   while edges blend into the page background and text stays readable */
+.hero-overlay {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(ellipse 95% 85% at 50% 44%,
+      rgba(244,241,236,0.30) 0%,
+      rgba(244,241,236,0.52) 60%,
+      rgba(244,241,236,0.86) 100%);
+}
+/* Dot-grid texture, sits above the overlay (inside the rounded box) */
+.hero-bg::after {
+  content:''; position:absolute; inset:0; z-index:2;
+  background-image:radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size:28px 28px; pointer-events:none;
+}
+.hero-inner { position:relative; z-index:3; max-width:680px; width:100%; text-align:center; }
+@media(max-width:640px){ .hero-bg { inset:0.75rem; border-radius:22px; } }
+.section-tag {
+  font-family:var(--mono); font-size:0.7rem; font-weight:500;
+  color:var(--muted); letter-spacing:0.1em; text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.hero-title {
+  font-size:clamp(3rem,6.5vw,5.5rem); font-weight:900;
+  letter-spacing:-0.035em; line-height:1.02;
+  color:var(--dark); margin-bottom:1.25rem;
+}
+.hero-sub {
+  font-size:1.0625rem; color:var(--muted); max-width:480px;
+  margin:0 auto 3rem; line-height:1.7;
+}
+
+/* Search input */
+.search-card {
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  transition:border-color 0.25s, box-shadow 0.25s;
+  max-width:560px; margin:0 auto 1rem;
+}
+.search-card:focus-within {
+  border-color:var(--dark);
+  box-shadow:0 4px 32px rgba(0,0,0,0.1);
+}
+.search-row { display:flex; align-items:center; padding:0.25rem 0.25rem 0.25rem 1.125rem; gap:0.5rem; }
+.search-icon { color:var(--muted); flex-shrink:0; }
+#domainInput {
+  flex:1; border:none; outline:none;
+  font-size:1rem; font-family:var(--mono); font-weight:500;
+  color:var(--text); background:transparent;
+  padding:0.875rem 0;
+}
+#domainInput::placeholder { color:#b8b3aa; font-weight:400; font-family:var(--font); }
+.btn-launch {
+  background:var(--dark); color:#fff;
+  padding:0.6875rem 1.25rem; border-radius:8px;
+  font-size:0.875rem; font-weight:700;
+  display:flex; align-items:center; gap:0.5rem;
+  transition:opacity 0.2s; flex-shrink:0;
+}
+.btn-launch:hover { opacity:0.8; }
+.btn-launch:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-launch .spin {
+  width:14px; height:14px;
+  border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
+  border-radius:50%; animation:spin 0.65s linear infinite; display:none;
+}
+.btn-launch.loading .spin { display:block; }
+.btn-launch.loading .lbl { display:none; }
+
+.search-opts {
+  display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap;
+  padding:0.625rem 1.125rem;
+  border-top:1px solid var(--border);
+  background:#faf8f5;
+}
+.opt-label {
+  display:flex; align-items:center; gap:0.5rem;
+  font-size:0.8125rem; color:var(--muted); cursor:pointer; user-select:none;
+}
+.opt-label input[type=checkbox] { accent-color:var(--dark); width:14px; height:14px; }
+.opt-label span { font-weight:500; color:var(--text); }
+.opt-label small { color:var(--muted); font-weight:400; }
+.opt-depth { margin-left:auto; }
+.opt-depth select {
+  font-family:var(--font); font-size:0.8125rem; font-weight:500;
+  color:var(--text); background:#fff;
+  border:1px solid var(--border); border-radius:6px;
+  padding:0.25rem 0.5rem; cursor:pointer; outline:none;
+  transition:border-color 0.2s;
+}
+.opt-depth select:hover, .opt-depth select:focus { border-color:var(--dark); }
+@media(max-width:560px){ .opt-depth { margin-left:0; } }
+
+/* ── Pipeline Runner ─────────────────────────────────────────────────────────── */
+#runner { max-width:760px; margin:0 auto; padding:0 2rem 6rem; display:none; }
+
+.runner-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.875rem 0; margin-bottom:2.5rem;
+  border-bottom:1px solid var(--border);
+}
+.runner-domain-row { display:flex; align-items:center; gap:0.75rem; }
+.runner-domain { font-family:var(--mono); font-size:1.0625rem; font-weight:600; color:var(--dark); }
+.mode-tag {
+  font-family:var(--mono); font-size:0.65rem; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.08em;
+  padding:0.2rem 0.6rem; border-radius:4px;
+}
+.mode-tag.mock   { background:#fef9c3; color:#713f12; }
+.mode-tag.dryrun { background:#ecfdf5; color:#065f46; }
+.mode-tag.live   { background:#fef2f2; color:#991b1b; }
+.btn-cancel-run {
+  display:flex; align-items:center; gap:0.375rem;
+  font-size:0.8125rem; font-weight:500; color:var(--muted);
+  padding:0.375rem 0.75rem; border-radius:6px;
+  border:1px solid var(--border);
+  transition:all 0.2s;
+}
+.btn-cancel-run:hover { border-color:var(--red); color:var(--red); }
+
+/* Vertical timeline */
+.pipeline-flow { display:flex; flex-direction:column; }
+.flow-stage { display:flex; gap:1.5rem; position:relative; }
+
+.flow-left { display:flex; flex-direction:column; align-items:center; width:32px; flex-shrink:0; }
+.stage-node {
+  width:32px; height:32px; border-radius:50%;
+  border:2px solid var(--border);
+  background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  position:relative; z-index:1; flex-shrink:0;
+  transition:border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+.stage-node.running {
+  border-color:var(--purple);
+  box-shadow:0 0 0 4px rgba(91,63,255,0.12);
+}
+.stage-node.running::after {
+  content:''; position:absolute;
+  width:18px; height:18px;
+  border:2.5px solid transparent; border-top-color:var(--purple);
+  border-radius:50%; animation:spin 0.65s linear infinite;
+}
+.stage-node.done {
+  background:var(--dark); border-color:var(--dark);
+  animation:nodePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.stage-node.done svg { display:block; }
+.stage-node.error { background:var(--red); border-color:var(--red); animation:nodePop 0.4s ease; }
+.stage-node svg { display:none; }
+
+@keyframes nodePop {
+  0%   { transform:scale(1); }
+  40%  { transform:scale(1.3); }
+  100% { transform:scale(1); }
+}
+
+.flow-connector {
+  flex:1; width:3px; background:var(--border);
+  position:relative; overflow:hidden; margin:0 auto; min-height:48px;
+}
+.flow-connector::after {
+  content:''; position:absolute; top:0; left:0;
+  width:100%; height:0%; background:var(--dark);
+  transition:height 1s cubic-bezier(0.4,0,0.2,1);
+}
+.flow-connector.filled::after { height:100%; }
+.flow-connector.hidden { display:none; }
+
+/* Running stage highlight */
+.flow-right {
+  flex:1; padding-bottom:2.25rem;
+  position:relative;
+}
+.flow-right.is-running {
+  /* left accent bar */
+}
+.flow-right.is-running::before {
+  content:''; position:absolute;
+  left:-1.75rem; top:0; width:3px; height:100%;
+  background:linear-gradient(to bottom, var(--purple) 0%, transparent 100%);
+  border-radius:2px; opacity:0.35;
+  animation:scanPulse 2s ease infinite;
+}
+@keyframes scanPulse {
+  0%, 100% { opacity:0.2; }
+  50%       { opacity:0.5; }
+}
+
+.stage-head {
+  display:flex; align-items:center; gap:0.625rem;
+  margin-bottom:0.5rem; min-height:32px;
+}
+.stage-num-lbl { font-family:var(--mono); font-size:0.7rem; color:var(--muted); font-weight:500; }
+.stage-svc { font-size:0.9375rem; font-weight:700; color:var(--dark); }
+.stage-status-pill {
+  margin-left:auto;
+  font-family:var(--mono); font-size:0.65rem; font-weight:600;
+  padding:0.2rem 0.6rem; border-radius:4px;
+  text-transform:uppercase; letter-spacing:0.06em;
+  transition:all 0.3s;
+}
+.stage-status-pill.idle    { background:var(--bg); color:var(--muted); border:1px solid var(--border); }
+.stage-status-pill.running { background:var(--purple-lt); color:var(--purple); }
+.stage-status-pill.done    { background:#f0fdf4; color:#15803d; }
+.stage-status-pill.error   { background:#fef2f2; color:var(--red); }
+
+.stage-task { font-size:0.8125rem; color:var(--muted); margin-bottom:0.875rem; line-height:1.5; }
+
+/* Inline notice (warnings, fallbacks, errors) */
+.stage-notice {
+  display:none;
+  align-items:flex-start; gap:0.5rem;
+  font-size:0.775rem; line-height:1.45;
+  padding:0.5rem 0.75rem; margin-bottom:0.875rem;
+  border-radius:8px;
+}
+.stage-notice.show { display:flex; }
+.stage-notice.warn  { background:var(--amber-lt); color:var(--amber); border:1px solid #fde68a; }
+.stage-notice.error { background:#fef2f2; color:var(--red); border:1px solid #fecaca; }
+.stage-notice svg { flex-shrink:0; margin-top:1px; }
+
+/* Processing placeholder */
+.out-processing {
+  display:flex; align-items:center; gap:0.625rem;
+  padding:0.5rem 0.75rem;
+  border:1px dashed var(--border); border-radius:8px;
+  font-size:0.8rem; color:var(--muted);
+  animation:fadeIn 0.3s ease;
+}
+.proc-dots { display:flex; gap:3px; align-items:center; }
+.proc-dots span {
+  width:4px; height:4px; border-radius:50%; background:var(--purple); opacity:0.4;
+}
+.proc-dots span:nth-child(1) { animation:dotBounce 1.2s 0.0s infinite; }
+.proc-dots span:nth-child(2) { animation:dotBounce 1.2s 0.2s infinite; }
+.proc-dots span:nth-child(3) { animation:dotBounce 1.2s 0.4s infinite; }
+@keyframes dotBounce {
+  0%,80%,100% { opacity:0.2; transform:scale(1); }
+  40%          { opacity:1;   transform:scale(1.4); }
+}
+
+/* Output items */
+.stage-output { display:flex; flex-direction:column; gap:0.3rem; }
+.out-item {
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.5rem 0.75rem;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; font-size:0.8125rem;
+  animation:itemIn 0.22s ease both;
+}
+@keyframes itemIn {
+  from { opacity:0; transform:translateX(-12px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.out-item:hover {
+  border-color:var(--dark); background:#fdfdfc;
+  transition:border-color 0.15s, background 0.15s;
+}
+.out-item-icon { color:var(--muted); flex-shrink:0; }
+.out-item-name { font-weight:500; color:var(--text); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.out-item-meta { font-size:0.75rem; color:var(--muted); flex-shrink:0; }
+.out-badge {
+  font-family:var(--mono); font-size:0.65rem; font-weight:600;
+  padding:0.15rem 0.45rem; border-radius:3px; flex-shrink:0;
+}
+.out-badge.verified { background:#dcfce7; color:#15803d; }
+.out-badge.unknown  { background:var(--purple-lt); color:var(--purple); }
+.out-badge.risky    { background:#fef2f2; color:var(--red); }
+.out-badge.sent     { background:#f0fdf4; color:#15803d; }
+.out-badge.dryrun   { background:#f1f5f9; color:#64748b; }
+
+.stage-pipe-msg {
+  margin-top:0.625rem;
+  font-size:0.775rem; color:var(--muted);
+  font-family:var(--mono); display:flex; align-items:center; gap:0.4rem;
+  animation:fadeIn 0.4s ease;
+}
+.stage-pipe-msg svg { color:var(--dark); flex-shrink:0; }
+
+.more-chip {
+  padding:0.375rem 0.75rem;
+  border:1px dashed var(--border);
+  border-radius:8px; font-size:0.75rem; color:var(--muted);
+  cursor:pointer; transition:border-color 0.2s, color 0.2s;
+  background:transparent;
+  font-family:var(--mono);
+}
+.more-chip:hover { border-color:var(--dark); color:var(--text); }
+
+/* Checkpoint */
+#checkpoint {
+  border:1.5px solid #d97706;
+  border-radius:var(--r); overflow:hidden;
+  margin-bottom:2rem; display:none;
+}
+.cp-header {
+  display:flex; align-items:center; gap:0.75rem;
+  padding:1rem 1.25rem;
+  border-bottom:1px solid #fde68a;
+  background:#fffbeb;
+}
+.cp-icon {
+  width:32px; height:32px; border-radius:7px;
+  background:#d97706; color:#fff;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.cp-title { font-weight:700; font-size:0.9375rem; }
+.cp-sub   { font-size:0.775rem; color:var(--muted); }
+.cp-dryrun-note {
+  padding:0.5rem 1.25rem;
+  background:#ecfdf5; border-bottom:1px solid #bbf7d0;
+  font-size:0.775rem; color:#065f46; font-weight:500;
+  font-family:var(--mono); display:none;
+}
+.cp-subject {
+  padding:0.75rem 1.25rem;
+  background:#fef9ec; border-bottom:1px solid #fde68a;
+  font-size:0.8125rem; color:#92400e;
+}
+.cp-subject strong { font-weight:700; }
+.cp-table-wrap { overflow-x:auto; }
+.cp-table { width:100%; border-collapse:collapse; font-size:0.8125rem; }
+.cp-table th {
+  text-align:left; padding:0.6rem 1rem;
+  font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em;
+  color:var(--muted); background:#fef9ec; border-bottom:1px solid #fde68a;
+}
+.cp-table td { padding:0.75rem 1rem; border-bottom:1px solid rgba(253,230,138,0.35); }
+.cp-table tr:last-child td { border-bottom:none; }
+.cp-table tr:hover td { background:rgba(253,230,138,0.1); }
+.cp-email { font-family:var(--mono); font-size:0.775rem; }
+.cp-actions {
+  display:flex; gap:0.625rem; align-items:center;
+  padding:1rem 1.25rem; background:#fffbeb;
+}
+.btn-send-now {
+  display:flex; align-items:center; gap:0.5rem;
+  background:var(--dark); color:#fff;
+  padding:0.625rem 1.375rem; border-radius:8px;
+  font-size:0.875rem; font-weight:700;
+  transition:opacity 0.2s;
+}
+.btn-send-now:hover { opacity:0.8; }
+.btn-cp-cancel {
+  padding:0.625rem 1rem; border-radius:8px;
+  border:1.5px solid var(--border); font-size:0.875rem;
+  font-weight:500; color:var(--muted);
+  transition:all 0.2s;
+}
+.btn-cp-cancel:hover { border-color:var(--red); color:var(--red); }
+.cp-note { margin-left:auto; font-size:0.775rem; color:var(--muted); font-family:var(--mono); }
+
+/* Results */
+#results {
+  border:1.5px solid var(--border);
+  border-radius:var(--r); padding:2.5rem;
+  background:var(--surface); display:none; text-align:center;
+}
+.res-title { font-size:1.625rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:-0.02em; }
+.res-sub   { color:var(--muted); margin-bottom:2rem; font-size:0.9375rem; }
+.stats-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+  background:var(--border); border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden; margin-bottom:2rem;
+}
+.stat-cell { background:var(--surface); padding:1.5rem 1rem; text-align:center; }
+.stat-n { font-size:2.25rem; font-weight:900; color:var(--dark); font-family:var(--mono); line-height:1; margin-bottom:0.35rem; }
+.stat-l { font-size:0.75rem; color:var(--muted); font-weight:500; }
+.btn-restart {
+  background:var(--dark); color:#fff;
+  padding:0.75rem 2rem; border-radius:8px;
+  font-size:0.9375rem; font-weight:700;
+  transition:opacity 0.2s;
+}
+.btn-restart:hover { opacity:0.8; }
+
+/* ── How It Works — Terminal ─────────────────────────────────────────────────── */
+.section { padding:6rem 2rem; }
+.section-alt { background:var(--surface); }
+.section-inner { max-width:980px; margin:0 auto; }
+.section-title {
+  font-size:clamp(1.875rem,4vw,3rem); font-weight:900;
+  letter-spacing:-0.03em; line-height:1.1;
+  margin-bottom:1rem;
+}
+.section-sub {
+  font-size:1.0625rem; color:var(--muted);
+  max-width:520px; line-height:1.7; margin-bottom:3.5rem;
+}
+
+.term-explorer {
+  display:grid; grid-template-columns:220px 1fr; gap:0;
+  border:1px solid #222; border-radius:var(--r); overflow:hidden;
+  background:var(--term-bg); min-height:380px;
+}
+.term-stages { padding:1.25rem 0; border-right:1px solid #222; }
+.term-stage-btn {
+  width:100%; text-align:left;
+  display:flex; align-items:center; gap:0.625rem;
+  padding:0.625rem 1.25rem;
+  font-size:0.8125rem; color:rgba(255,255,255,0.4);
+  transition:color 0.2s, background 0.2s;
+  cursor:pointer;
+}
+.term-stage-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.04); }
+.term-stage-btn.active { color:#fff; background:rgba(255,255,255,0.06); }
+.term-stage-btn.active .tsb-dot { background:var(--term-green); }
+.tsb-num { font-family:var(--mono); font-size:0.65rem; color:var(--term-dim); flex-shrink:0; }
+.tsb-name { font-weight:500; }
+.tsb-dot { width:6px; height:6px; border-radius:50%; background:var(--term-dim); margin-left:auto; flex-shrink:0; }
+
+.term-display { display:flex; flex-direction:column; min-width:0; }
+.term-titlebar {
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.75rem 1.25rem; border-bottom:1px solid #222;
+  flex-shrink:0;
+}
+.tdot { width:10px; height:10px; border-radius:50%; }
+.tdot.r { background:#ff5f57; } .tdot.y { background:#ffbd2e; } .tdot.g { background:#28c840; }
+.tterm-name {
+  margin-left:0.5rem;
+  font-family:var(--mono); font-size:0.7rem; color:var(--term-dim);
+}
+.term-body {
+  flex:1; padding:1.25rem 1.5rem;
+  font-family:var(--mono); font-size:0.8125rem; line-height:1.85;
+  overflow-y:auto; min-height:0;
+}
+.term-body::-webkit-scrollbar { width:3px; }
+.term-body::-webkit-scrollbar-thumb { background:#333; }
+.tl { display:block; }
+.tl-cmd    { color:#fff; }
+.tl-dim    { color:var(--term-dim); }
+.tl-green  { color:var(--term-green); }
+.tl-teal   { color:var(--term-teal); }
+.tl-purple { color:var(--term-purple); }
+.tl-amber  { color:var(--term-amber); }
+.tl-blank  { display:block; height:0.5rem; }
+
+/* ── Features ────────────────────────────────────────────────────────────────── */
+.feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+.feat-card { background:var(--surface); padding:1.75rem; }
+.feat-icon {
+  width:36px; height:36px; border-radius:8px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:1rem; color:var(--dark);
+}
+.feat-title { font-size:0.9375rem; font-weight:700; margin-bottom:0.375rem; }
+.feat-desc  { font-size:0.8125rem; color:var(--muted); line-height:1.65; }
+
+/* ── FAQ ──────────────────────────────────────────────────────────────────────── */
+.faq-list { max-width:660px; border-top:1px solid var(--border); }
+.faq-row { border-bottom:1px solid var(--border); }
+.faq-q {
+  width:100%; text-align:left;
+  padding:1.125rem 0;
+  font-size:0.9375rem; font-weight:600; color:var(--text);
+  display:flex; justify-content:space-between; align-items:center; gap:1rem;
+  cursor:pointer; background:none;
+  transition:color 0.2s;
+}
+.faq-q:hover { color:var(--dark); }
+.faq-arrow { color:var(--muted); transition:transform 0.25s; flex-shrink:0; }
+.faq-row.open .faq-arrow { transform:rotate(180deg); }
+.faq-a {
+  max-height:0; overflow:hidden;
+  transition:max-height 0.35s ease;
+  font-size:0.875rem; color:var(--muted); line-height:1.8;
+}
+.faq-row.open .faq-a { max-height:300px; padding-bottom:1.125rem; }
+
+/* ── Vision / CTA (rounded video box) ────────────────────────────────────────── */
+.vision { padding:5rem 2rem 6rem; background:var(--bg); }
+.vision-box {
+  position:relative; max-width:1100px; margin:0 auto;
+  border-radius:32px; overflow:hidden;
+  min-height:480px;
+  display:flex; align-items:center; justify-content:center;
+  background:#0d0d0b;
+  box-shadow:0 30px 80px rgba(0,0,0,0.18);
+}
+.vision-video {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; z-index:0; pointer-events:none;
+  transition:opacity 0.9s linear; will-change:opacity;
+}
+/* Dark scrim so the white headline pops over the gradient */
+.vision-scrim {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(ellipse 90% 90% at 50% 50%, rgba(13,13,11,0.45) 0%, rgba(13,13,11,0.78) 100%),
+    linear-gradient(to bottom, rgba(13,13,11,0.35), rgba(13,13,11,0.55));
+}
+.vision-content {
+  position:relative; z-index:2; text-align:center;
+  padding:4rem 2rem; max-width:680px;
+}
+.vision-tag {
+  font-family:var(--mono); font-size:0.7rem; font-weight:500;
+  color:rgba(255,255,255,0.45); letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.vision-title {
+  font-size:clamp(2.25rem,5vw,3.75rem); font-weight:900;
+  letter-spacing:-0.03em; line-height:1.04;
+  color:#fff; margin-bottom:1.25rem;
+}
+.vision-sub {
+  font-size:1.0625rem; color:rgba(255,255,255,0.72);
+  line-height:1.7; max-width:520px; margin:0 auto 2.25rem;
+}
+.vision-cta { display:flex; align-items:center; justify-content:center; gap:1.25rem; flex-wrap:wrap; }
+.vision-btn {
+  display:inline-flex; align-items:center; gap:0.625rem;
+  background:#fff; color:var(--dark);
+  font-size:0.9375rem; font-weight:600;
+  padding:0.625rem 0.75rem 0.625rem 1.25rem;
+  border-radius:100px;
+  transition:transform 0.15s, box-shadow 0.2s;
+}
+.vision-btn:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+.vision-btn-arrow {
+  width:26px; height:26px; border-radius:50%;
+  background:var(--dark); color:#fff;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.vision-email {
+  font-family:var(--mono); font-size:0.875rem;
+  color:rgba(255,255,255,0.6);
+  transition:color 0.2s;
+}
+.vision-email:hover { color:#fff; }
+@media(max-width:640px){
+  .vision-box { border-radius:22px; min-height:420px; }
+  .vision-content { padding:3rem 1.5rem; }
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+footer {
+  background:var(--dark); color:rgba(255,255,255,0.4);
+  padding:3rem 2rem;
+  display:flex; flex-direction:column; align-items:center; gap:1rem;
+  text-align:center;
+}
+.footer-logo { font-family:var(--mono); font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.85); }
+footer p { font-size:0.8rem; }
+.footer-links { display:flex; gap:1.5rem; }
+.footer-links a { font-size:0.8rem; color:rgba(255,255,255,0.35); transition:color 0.2s; }
+.footer-links a:hover { color:rgba(255,255,255,0.75); }
+
+/* ── Scroll reveal ────────────────────────────────────────────────────────────── */
+.reveal { opacity:0; transform:translateY(22px); transition:opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-delay-1 { transition-delay:0.1s; }
+.reveal-delay-2 { transition-delay:0.2s; }
+.reveal-delay-3 { transition-delay:0.3s; }
+
+/* ── Keyframes ────────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.fade-in { animation:fadeIn 0.4s ease both; }
+
+/* ── Responsive ───────────────────────────────────────────────────────────────── */
+@media(max-width:700px){
+  .nav-links { display:none; }
+  .term-explorer { grid-template-columns:1fr; }
+  .term-stages { display:flex; overflow-x:auto; border-right:none; border-bottom:1px solid #222; padding:0.75rem; }
+  .term-stage-btn { white-space:nowrap; flex-shrink:0; }
+  .stats-row { grid-template-columns:1fr 1fr; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
+<nav class="nav" id="navbar">
+  <a class="nav-logo" href="#home">
+    <div class="nav-logo-mark">&gt;_</div>
+    Outreach Pipeline
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#how-it-works">How it Works</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+  </div>
+  <a class="nav-btn-ghost" href="#how-it-works">Explore</a>
+  <a class="nav-btn-dark" href="#home" onclick="setTimeout(()=>document.getElementById('domainInput').focus(),100)">
+    Launch
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+  </a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
+<section id="home" class="hero">
+  <div class="hero-bg">
+    <video class="hero-video" id="heroVidA" autoplay muted playsinline preload="auto" aria-hidden="true">
+      <source src="hero-bg.webm" type="video/webm" />
+    </video>
+    <video class="hero-video" id="heroVidB" muted playsinline preload="auto" aria-hidden="true" style="opacity:0">
+      <source src="hero-bg.webm" type="video/webm" />
+    </video>
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="section-tag">01 · THE PIPELINE</div>
+    <h1 class="hero-title">One domain in.<br>Full outreach out.</h1>
+    <p class="hero-sub">Type a seed domain. The pipeline finds lookalike companies, surfaces decision-makers, resolves verified emails, and sends personalised outreach — autonomously.</p>
+
+    <div class="search-card">
+      <div class="search-row">
+        <span class="search-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><path d="m12 12 2.5 2.5"/></svg>
+        </span>
+        <input id="domainInput" type="text" placeholder="stripe.com" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')launchPipeline()" />
+        <button class="btn-launch" id="launchBtn" onclick="launchPipeline()">
+          <div class="spin"></div>
+          <span class="lbl">Launch Pipeline</span>
+        </button>
+      </div>
+      <div class="search-opts">
+        <label class="opt-label">
+          <input type="checkbox" id="mockMode" />
+          <span>Mock mode</span>
+          <small>(offline, no keys needed)</small>
+        </label>
+        <label class="opt-label">
+          <input type="checkbox" id="dryRun" />
+          <span>Dry run</span>
+          <small>(skip the send — sourcing only)</small>
+        </label>
+        <label class="opt-label opt-depth">
+          <span>Depth</span>
+          <select id="depthSelect">
+            <option value="single" selected>Minimal · 2 emails</option>
+            <option value="demo">Demo · 3 emails</option>
+            <option value="standard">Standard · 5 emails</option>
+          </select>
+          <small id="depthHint">~1 Apollo · ~4 Prospeo</small>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pipeline Runner ────────────────────────────────────────────────────────── -->
+<div id="runner">
+  <div class="runner-bar">
+    <div class="runner-domain-row">
+      <span class="runner-domain" id="runnerDomain"></span>
+      <span class="mode-tag" id="modeTag"></span>
+    </div>
+    <button class="btn-cancel-run" onclick="resetUI()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l10 10M11 1 1 11"/></svg>
+      Cancel
+    </button>
+  </div>
+
+  <div class="pipeline-flow">
+    <!-- Stage 1 -->
+    <div class="flow-stage" id="fs-1">
+      <div class="flow-left">
+        <div class="stage-node idle" id="node-1">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M1.5 5.5l3 3 5-5"/></svg>
+        </div>
+        <div class="flow-connector" id="conn-1"></div>
+      </div>
+      <div class="flow-right">
+        <div class="stage-head">
+          <span class="stage-num-lbl">01</span>
+          <span class="stage-svc" id="svc-1">Apollo.io</span>
+          <span class="stage-status-pill idle" id="pill-1">Queued</span>
+        </div>
+        <div class="stage-task">seed domain → lookalike company domains</div>
+        <div class="stage-notice" id="notice-1"></div>
+        <div class="stage-output" id="out-1"></div>
+        <div class="stage-pipe-msg" id="sum-1"></div>
+      </div>
+    </div>
+
+    <!-- Stage 2 -->
+    <div class="flow-stage" id="fs-2">
+      <div class="flow-left">
+        <div class="stage-node idle" id="node-2">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M1.5 5.5l3 3 5-5"/></svg>
+        </div>
+        <div class="flow-connector" id="conn-2"></div>
+      </div>
+      <div class="flow-right">
+        <div class="stage-head">
+          <span class="stage-num-lbl">02</span>
+          <span class="stage-svc" id="svc-2">Prospeo</span>
+          <span class="stage-status-pill idle" id="pill-2">Queued</span>
+        </div>
+        <div class="stage-task">domains → C-suite / VP-level contacts + LinkedIn URLs</div>
+        <div class="stage-notice" id="notice-2"></div>
+        <div class="stage-output" id="out-2"></div>
+        <div class="stage-pipe-msg" id="sum-2"></div>
+      </div>
+    </div>
+
+    <!-- Stage 3 -->
+    <div class="flow-stage" id="fs-3">
+      <div class="flow-left">
+        <div class="stage-node idle" id="node-3">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M1.5 5.5l3 3 5-5"/></svg>
+        </div>
+        <div class="flow-connector" id="conn-3"></div>
+      </div>
+      <div class="flow-right">
+        <div class="stage-head">
+          <span class="stage-num-lbl">03</span>
+          <span class="stage-svc" id="svc-3">Prospeo</span>
+          <span class="stage-status-pill idle" id="pill-3">Queued</span>
+        </div>
+        <div class="stage-task">LinkedIn URLs → verified work emails</div>
+        <div class="stage-notice" id="notice-3"></div>
+        <div class="stage-output" id="out-3"></div>
+        <div class="stage-pipe-msg" id="sum-3"></div>
+      </div>
+    </div>
+
+    <!-- Stage 4 -->
+    <div class="flow-stage" id="fs-4">
+      <div class="flow-left">
+        <div class="stage-node idle" id="node-4">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M1.5 5.5l3 3 5-5"/></svg>
+        </div>
+        <!-- no connector after last stage -->
+      </div>
+      <div class="flow-right">
+        <div class="stage-head">
+          <span class="stage-num-lbl">04</span>
+          <span class="stage-svc" id="svc-4">Brevo</span>
+          <span class="stage-status-pill idle" id="pill-4">Queued</span>
+        </div>
+        <div class="stage-task">verified emails → personalised outreach sent</div>
+        <div class="stage-notice" id="notice-4"></div>
+        <div class="stage-output" id="out-4"></div>
+        <div class="stage-pipe-msg" id="sum-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety Checkpoint -->
+  <div id="checkpoint">
+    <div class="cp-header">
+      <div class="cp-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M8 2l1.5 4.5H14l-3.5 2.5 1.5 4.5L8 11l-4 2.5 1.5-4.5L2 6.5h4.5z"/></svg>
+      </div>
+      <div>
+        <div class="cp-title">Safety Checkpoint</div>
+        <div class="cp-sub">Review before anything sends. This is the only manual step.</div>
+      </div>
+    </div>
+    <div class="cp-dryrun-note" id="cpDryNote">Dry-run active — emails will be simulated, nothing will leave your account.</div>
+    <div class="cp-subject" id="cpSubject"></div>
+    <div class="cp-table-wrap">
+      <table class="cp-table">
+        <thead><tr><th>#</th><th>Name</th><th>Title</th><th>Company</th><th>Email</th><th>Status</th></tr></thead>
+        <tbody id="cpRows"></tbody>
+      </table>
+    </div>
+    <div class="cp-actions">
+      <button class="btn-send-now" id="btnSend" onclick="confirmSend()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12.5 1.5 1.5 5.5l4 2 7-6z"/><path d="M5.5 7.5 8 12.5l4.5-11"/></svg>
+        <span id="btnSendLabel">Send emails</span>
+      </button>
+      <button class="btn-cp-cancel" onclick="cancelPipeline()">Cancel</button>
+      <span class="cp-note" id="cpNote"></span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="res-title" id="resTitle">Pipeline complete</div>
+    <div class="res-sub" id="resSub"></div>
+    <div class="stats-row" id="statsRow"></div>
+    <button class="btn-restart" onclick="resetUI()">Run another domain</button>
+  </div>
+</div>
+
+<!-- ── How It Works — Terminal ────────────────────────────────────────────────── -->
+<section id="how-it-works" class="section section-alt">
+  <div class="section-inner">
+    <div class="section-tag reveal">02 · THE STAGES</div>
+    <h2 class="section-title reveal reveal-delay-1">One input. Four stages.<br>A full outreach engine.</h2>
+    <p class="section-sub reveal reveal-delay-2">Every stage's output is the next stage's input. No human touches the data between them — that handoff-free chain is the entire point.</p>
+
+    <div class="term-explorer reveal reveal-delay-3">
+      <div class="term-stages" id="termStages">
+        <button class="term-stage-btn active" data-s="0" onclick="switchTermStage(0)">
+          <span class="tsb-num">IN</span><span class="tsb-name">Seed Domain</span><span class="tsb-dot"></span>
+        </button>
+        <button class="term-stage-btn" data-s="1" onclick="switchTermStage(1)">
+          <span class="tsb-num">01</span><span class="tsb-name">Apollo.io</span><span class="tsb-dot"></span>
+        </button>
+        <button class="term-stage-btn" data-s="2" onclick="switchTermStage(2)">
+          <span class="tsb-num">02</span><span class="tsb-name">Prospeo</span><span class="tsb-dot"></span>
+        </button>
+        <button class="term-stage-btn" data-s="3" onclick="switchTermStage(3)">
+          <span class="tsb-num">03</span><span class="tsb-name">Prospeo Email</span><span class="tsb-dot"></span>
+        </button>
+        <button class="term-stage-btn" data-s="4" onclick="switchTermStage(4)">
+          <span class="tsb-num">04</span><span class="tsb-name">Brevo</span><span class="tsb-dot"></span>
+        </button>
+      </div>
+      <div class="term-display">
+        <div class="term-titlebar">
+          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+          <span class="tterm-name" id="termTitle">outreach — seed-input</span>
+        </div>
+        <div class="term-body" id="termBody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────────────────────────── -->
+<section id="features" class="section">
+  <div class="section-inner">
+    <div class="section-tag reveal">03 · WHY IT WORKS</div>
+    <h2 class="section-title reveal reveal-delay-1">Built for production,<br>not just demo day.</h2>
+    <p class="section-sub reveal reveal-delay-2">Six design decisions that separate a real pipeline from a script that strings four API calls together.</p>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M2 8a6 6 0 1 0 12 0A6 6 0 0 0 2 8z"/><path d="M8 5v3l2 2"/></svg></div>
+        <div class="feat-title">Resumable runs</div>
+        <div class="feat-desc">State is checkpointed after every stage. Crash or abort — resume with <code>--resume &lt;id&gt;</code> and pick up exactly where you left off without re-spending credits.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M3 8h10M8 3l5 5-5 5"/></svg></div>
+        <div class="feat-title">Typed pipeline</div>
+        <div class="feat-desc">Each stage transforms one Pydantic model into the next: domain → Company → Prospect → Contact → EmailResult. Malformed data is caught at the boundary, not inside the send loop.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M8 2v4M8 10v4M2 8h4M10 8h4"/></svg></div>
+        <div class="feat-title">Rate-limit resilience</div>
+        <div class="feat-desc">Exponential backoff with jitter. Respects <code>Retry-After</code> headers. Only retries transient failures — 4xx errors fail fast so no credits are wasted.</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M8 1l2 5h5l-4 3 2 5-5-3-5 3 2-5L1 6h5z"/></svg></div>
+        <div class="feat-title">Safety checkpoint</div>
+        <div class="feat-desc">Sourcing and sending are split on purpose. The full recipient list — name, title, email, verification status — is shown before the one irreversible action fires.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M6 8h4M8 6v4"/></svg></div>
+        <div class="feat-title">Suppression list</div>
+        <div class="feat-desc">Every address that gets a real send is recorded globally across all runs. Re-run the same seed domain tomorrow — nobody receives a second cold email.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M2 4h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4z"/><path d="M2 4l6 5 6-5"/></svg></div>
+        <div class="feat-title">Full mock mode</div>
+        <div class="feat-desc">The entire end-to-end flow — safety checkpoint, logs, summary — runs offline with zero API keys via <code>--mock</code>. Demo anywhere, any time.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────────────────────────── -->
+<section id="faq" class="section section-alt">
+  <div class="section-inner">
+    <div class="section-tag reveal">04 · QUESTIONS</div>
+    <h2 class="section-title reveal reveal-delay-1">Common questions.</h2>
+    <div class="faq-list" style="margin-top:2.5rem">
+      <div class="faq-row reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">What does dry-run mode do?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 6 4 4 4-4"/></svg></button>
+        <div class="faq-a">Stages 1–3 run against real APIs (Apollo.io and Prospeo) so you get real company and contact data. Stage 4 (Brevo) is simulated — emails are constructed and logged but nothing is sent. Perfect for verifying the sourcing before committing to a real send.</div>
+      </div>
+      <div class="faq-row reveal reveal-delay-1">
+        <button class="faq-q" onclick="toggleFaq(this)">What happens when an API rate-limits?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 6 4 4 4-4"/></svg></button>
+        <div class="faq-a">The shared HTTP client retries 429s with exponential backoff + jitter, reading the server's Retry-After header first. 4xx errors (bad key, bad filter) fail fast — retrying a real error just wastes credits.</div>
+      </div>
+      <div class="faq-row reveal reveal-delay-2">
+        <button class="faq-q" onclick="toggleFaq(this)">Will the same person get emailed twice?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 6 4 4 4-4"/></svg></button>
+        <div class="faq-a">No. Every address that receives a real send is added to a global suppression list in runs/suppression.json. Stage 3 filters against it before adding anyone to the send queue — even across completely separate runs and seed domains.</div>
+      </div>
+      <div class="faq-row reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">What if the pipeline crashes mid-run?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 6 4 4 4-4"/></svg></button>
+        <div class="faq-a">State is written to runs/&lt;run-id&gt;/state.json after each stage. Run python run.py --domain example.com --resume &lt;run-id&gt; to continue without re-spending any credits. The safety checkpoint is also a natural resume point.</div>
+      </div>
+      <div class="faq-row reveal reveal-delay-1">
+        <button class="faq-q" onclick="toggleFaq(this)">I don't have an Eazyreach key yet — does it still work?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 6 4 4 4-4"/></svg></button>
+        <div class="faq-a">Yes. Set EAZYREACH_MOCK=true in .env and the pipeline generates realistic email addresses from the person's name and company domain. The mock client is also what powers Mock mode in the web UI — great for demoing the full flow before credits are activated.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Vision / CTA ───────────────────────────────────────────────────────────── -->
+<section id="vision" class="vision">
+  <div class="vision-box reveal">
+    <video class="vision-video" id="visVidA" autoplay muted playsinline preload="auto" aria-hidden="true">
+      <source src="hero-bg.webm" type="video/webm" />
+    </video>
+    <video class="vision-video" id="visVidB" muted playsinline preload="auto" aria-hidden="true" style="opacity:0">
+      <source src="hero-bg.webm" type="video/webm" />
+    </video>
+    <div class="vision-scrim"></div>
+    <div class="vision-content">
+      <div class="vision-tag">05 · THE VISION</div>
+      <h2 class="vision-title">The autonomous<br>outreach stack.</h2>
+      <p class="vision-sub">One seed domain in, personalised outreach out — sourcing, decision-maker discovery, email resolution and sending, with zero humans in the loop.</p>
+      <div class="vision-cta">
+        <a class="vision-btn" href="#home" onclick="setTimeout(()=>document.getElementById('domainInput').focus(),350)">
+          Run a demo
+          <span class="vision-btn-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 9 3M4 3h5v5"/></svg>
+          </span>
+        </a>
+        <a class="vision-email" href="mailto:neelanshu@neelanshukarn.online">neelanshu@neelanshukarn.online</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">&gt;_ outreach-pipeline</div>
+  <p>Apollo.io · Prospeo · Brevo</p>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#how-it-works">How it Works</a>
+    <a href="#features">Features</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</footer>
+
+<script>
+/* ── State ─────────────────────────────────────────────────────────────────── */
+let jobId = null, evtSrc = null, cpContacts = [];
+const MAX_ITEMS = 8; // max items shown per stage before collapsing
+const stageCounts = {1:0, 2:0, 3:0, 4:0};
+
+/* ── Scroll reveal ─────────────────────────────────────────────────────────── */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').style.boxShadow =
+    window.scrollY > 20 ? '0 4px 32px rgba(0,0,0,0.1)' : '0 2px 24px rgba(0,0,0,0.09)';
+}, { passive: true });
+
+/* ── Terminal stage explorer ───────────────────────────────────────────────── */
+const TERM_CONTENT = [
+  {
+    name: 'outreach — seed-input',
+    lines: [
+      {c:'tl-dim',  t:'# You provide one thing — a seed domain.'},
+      {c:'tl-blank'},
+      {c:'tl-cmd',  t:'$ pipeline.run --domain stripe.com'},
+      {c:'tl-blank'},
+      {c:'tl-dim',  t:'> normalising input...'},
+      {c:'tl-green',t:'+ seed_domain = "stripe.com"'},
+      {c:'tl-blank'},
+      {c:'tl-dim',  t:'> initialising stages 01 → 04'},
+      {c:'tl-teal', t:'→ pipeline ready. piping to Stage 01.'},
+    ]
+  },
+  {
+    name: 'outreach — stage-01-apollo',
+    lines: [
+      {c:'tl-dim',  t:'# Stage 01: Apollo.io — lookalike company discovery'},
+      {c:'tl-dim',  t:'# (Ocean.io tried first; falls back to Apollo on free plan)'},
+      {c:'tl-blank'},
+      {c:'tl-cmd',  t:'$ apollo.find_lookalikes("stripe.com")'},
+      {c:'tl-blank'},
+      {c:'tl-dim',  t:'> enriching seed domain...'},
+      {c:'tl-dim',  t:'> reading ecosystem (subsidiaries, tech stack)...'},
+      {c:'tl-blank'},
+      {c:'tl-green',t:'+ paystack.com          [A]  score: 0.88'},
+      {c:'tl-green',t:'+ bridge.xyz            [A]  score: 0.88'},
+      {c:'tl-green',t:'+ privy.io              [A]  score: 0.88'},
+      {c:'tl-green',t:'+ recko.io              [A]  score: 0.88'},
+      {c:'tl-dim',  t:'  ...up to depth limit'},
+      {c:'tl-blank'},
+      {c:'tl-teal', t:'→ lookalike companies found (1 enrich credit)'},
+      {c:'tl-teal', t:'→ output piped to Stage 02'},
+    ]
+  },
+  {
+    name: 'outreach — stage-02-prospeo',
+    lines: [
+      {c:'tl-dim',   t:'# Stage 02: Prospeo — C-suite & VP decision-makers'},
+      {c:'tl-blank'},
+      {c:'tl-cmd',   t:'$ prospeo.find_decision_makers(companies, seniority=["C-Suite","VP"])'},
+      {c:'tl-blank'},
+      {c:'tl-dim',   t:'> scanning northwind.io...'},
+      {c:'tl-green', t:'+ Jordan Lee    — CEO         northwind.io'},
+      {c:'tl-green', t:'+ Sam Rivera    — VP Sales    northwind.io'},
+      {c:'tl-dim',   t:'> scanning acmedata.com...'},
+      {c:'tl-green', t:'+ Priya Nair    — Co-founder  acmedata.com'},
+      {c:'tl-dim',   t:'  ...scanning 8 more domains'},
+      {c:'tl-blank'},
+      {c:'tl-dim',   t:'> de-duplicating by person_id + linkedin_url...'},
+      {c:'tl-teal',  t:'→ 28 decision-makers found (0 duplicates removed)'},
+      {c:'tl-teal',  t:'→ output piped to Stage 03'},
+    ]
+  },
+  {
+    name: 'outreach — stage-03-prospeo-email',
+    lines: [
+      {c:'tl-dim',    t:'# Stage 03: Prospeo Email Finder — LinkedIn URL → verified email'},
+      {c:'tl-dim',    t:'# (drop-in Eazyreach replacement per Vocallabs FAQ)'},
+      {c:'tl-blank'},
+      {c:'tl-cmd',    t:'$ prospeo.linkedin_email_finder(prospect.linkedin_url)'},
+      {c:'tl-blank'},
+      {c:'tl-dim',    t:'> POST /linkedin-email-finder for 28 profiles...'},
+      {c:'tl-green',  t:'+ jordan.lee@northwind.io     [VERIFIED · professional]'},
+      {c:'tl-green',  t:'+ sam.rivera@northwind.io     [VERIFIED · professional]'},
+      {c:'tl-green',  t:'+ priya.nair@acmedata.com     [VERIFIED · professional]'},
+      {c:'tl-purple', t:'+ alex.wu@pipelinely.com      [UNKNOWN]'},
+      {c:'tl-dim',    t:'  ...+19 more'},
+      {c:'tl-blank'},
+      {c:'tl-dim',    t:'> checking suppression list...'},
+      {c:'tl-dim',    t:'> filtering RISKY addresses...'},
+      {c:'tl-teal',   t:'→ 25 deliverable contacts resolved'},
+      {c:'tl-teal',   t:'→ safety checkpoint required before Stage 04'},
+    ]
+  },
+  {
+    name: 'outreach — stage-04-brevo',
+    lines: [
+      {c:'tl-dim',   t:'# Stage 04: Brevo — personalised outreach send'},
+      {c:'tl-blank'},
+      {c:'tl-cmd',   t:'$ brevo.send(contact, subject, html, text)'},
+      {c:'tl-blank'},
+      {c:'tl-dim',   t:'> human approved checkpoint. firing sends...'},
+      {c:'tl-blank'},
+      {c:'tl-amber', t:'  Subject: "Quick idea for Northwind"'},
+      {c:'tl-green', t:'+ Sent → jordan.lee@northwind.io   [msg-001]'},
+      {c:'tl-green', t:'+ Sent → sam.rivera@northwind.io   [msg-002]'},
+      {c:'tl-amber', t:'  Subject: "Acme Data + Pipeline?"'},
+      {c:'tl-green', t:'+ Sent → priya.nair@acmedata.com   [msg-003]'},
+      {c:'tl-dim',   t:'  ...+22 more'},
+      {c:'tl-blank'},
+      {c:'tl-dim',   t:'> updating suppression list with 25 addresses...'},
+      {c:'tl-teal',  t:'→ 25 emails sent. 0 failed.'},
+      {c:'tl-teal',  t:'→ run saved to runs/20260607-094037-stripe-com/'},
+    ]
+  }
+];
+
+function switchTermStage(idx) {
+  document.querySelectorAll('.term-stage-btn').forEach((b,i) =>
+    b.classList.toggle('active', i === idx));
+  document.getElementById('termTitle').textContent = TERM_CONTENT[idx].name;
+  const body = document.getElementById('termBody');
+  body.innerHTML = '';
+  TERM_CONTENT[idx].lines.forEach(l => {
+    const span = document.createElement('span');
+    span.className = 'tl ' + (l.c || '');
+    span.textContent = l.t || '';
+    body.appendChild(span);
+  });
+}
+
+// Initialise terminal on load
+window.addEventListener('DOMContentLoaded', () => {
+  switchTermStage(0);
+  document.getElementById('domainInput').focus();
+  setupHeroLoop();
+  const depthSel = document.getElementById('depthSelect');
+  if (depthSel) depthSel.addEventListener('change', updateDepthHint);
+});
+
+/* ── Seamless crossfade loop for the hero video ───────────────────────────────
+   The source clip has a hard cut at its loop point. Instead of the native
+   `loop` attribute (which shows that cut), we run two copies and crossfade the
+   incoming one in just before the active one ends — so the loop is invisible. */
+function setupHeroLoop() {
+  setupVideoLoop('heroVidA', 'heroVidB');
+  setupVideoLoop('visVidA', 'visVidB');
+}
+
+/* Generic seamless crossfade loop for a pair of stacked <video>s */
+function setupVideoLoop(aId, bId) {
+  const a = document.getElementById(aId);
+  const b = document.getElementById(bId);
+  if (!a || !b) return;
+
+  const FADE = 0.9;               // seconds of overlap (matches CSS transition)
+  let active = a, idle = b;
+
+  [a, b].forEach(v => { v.muted = true; v.playsInline = true; v.loop = false; });
+
+  active.style.opacity = 1;
+  idle.style.opacity = 0;
+  const tryPlay = v => v.play().catch(() => {});
+  tryPlay(active);
+
+  function tick() {
+    const d = active.duration;
+    if (d && active.currentTime >= d - FADE) {
+      idle.currentTime = 0;
+      tryPlay(idle);
+      idle.style.opacity = 1;
+      active.style.opacity = 0;
+      const justLeft = active;
+      active = idle;
+      idle = justLeft;
+      setTimeout(() => { try { idle.pause(); } catch (_) {} }, FADE * 1000 + 60);
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && active.paused) tryPlay(active);
+  });
+}
+
+// Trigger terminal type-in on scroll into view
+let termTyped = false;
+new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !termTyped) {
+    termTyped = true;
+    typeInTerminal(0);
+  }
+}, { threshold: 0.3 }).observe(document.getElementById('how-it-works'));
+
+function typeInTerminal(idx) {
+  const body = document.getElementById('termBody');
+  const lines = TERM_CONTENT[idx].lines;
+  body.innerHTML = '';
+  let li = 0;
+  function nextLine() {
+    if (li >= lines.length) return;
+    const l = lines[li++];
+    const span = document.createElement('span');
+    span.className = 'tl ' + (l.c || '');
+    span.textContent = l.t || '';
+    body.appendChild(span);
+    body.scrollTop = body.scrollHeight;
+    setTimeout(nextLine, l.c === 'tl-blank' ? 80 : 60);
+  }
+  nextLine();
+}
+
+/* ── Launch pipeline ────────────────────────────────────────────────────────── */
+// Demo-depth presets — keep API credit spend predictable
+// Depth controls the real cost. Apollo = 1 flat credit for the whole company
+// pool. The Prospeo cost = company searches + email lookups, both bounded here.
+const DEPTH_PRESETS = {
+  single:   { max_companies: 6, max_searches: 3, max_prospects: 3, max_emails: 2, hint: '~1 Apollo · ~6 Prospeo' },
+  demo:     { max_companies: 8, max_searches: 5, max_prospects: 3, max_emails: 3, hint: '~1 Apollo · ~9 Prospeo' },
+  standard: { max_companies: 8, max_searches: 7, max_prospects: 3, max_emails: 5, hint: '~1 Apollo · ~14 Prospeo' },
+};
+
+function updateDepthHint() {
+  const sel = document.getElementById('depthSelect');
+  const hint = document.getElementById('depthHint');
+  if (sel && hint) hint.textContent = (DEPTH_PRESETS[sel.value] || DEPTH_PRESETS.demo).hint;
+}
+
+async function launchPipeline() {
+  const domain  = document.getElementById('domainInput').value.trim();
+  const mock    = document.getElementById('mockMode').checked;
+  const dryRun  = document.getElementById('dryRun').checked;
+  const depth   = document.getElementById('depthSelect').value;
+  if (!domain) { shakeInput(); return; }
+
+  const preset = DEPTH_PRESETS[depth] || DEPTH_PRESETS.demo;
+  const btn = document.getElementById('launchBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+
+  try {
+    const r = await fetch('/api/run', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        domain, mock, dry_run: dryRun,
+        max_companies: preset.max_companies,
+        max_searches: preset.max_searches,
+        max_prospects: preset.max_prospects,
+        max_emails: preset.max_emails,
+      })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error || 'Failed to start.'); return; }
+    jobId = d.job_id;
+    showRunner(d.domain, mock, dryRun);
+    connectSSE(d.job_id);
+  } catch(e) {
+    alert('Could not reach server. Run: python3 server.py');
+  } finally {
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+/* ── SSE ───────────────────────────────────────────────────────────────────── */
+function connectSSE(id) {
+  if (evtSrc) evtSrc.close();
+  evtSrc = new EventSource(`/api/stream/${id}`);
+  evtSrc.onmessage = e => {
+    let ev; try { ev = JSON.parse(e.data); } catch { return; }
+    handleEvent(ev);
+  };
+  evtSrc.onerror = () => {};
+}
+
+let activeStage = 0;
+
+function handleEvent(ev) {
+  switch(ev.type) {
+    case 'start':
+      // reset state for a fresh run
+      activeStage = 0;
+      break;
+
+    case 'stage_start': {
+      activeStage = ev.stage;
+      setNode(ev.stage, 'running');
+      setPill(ev.stage, 'running', 'Running');
+      setRunningState(ev.stage, true);
+      if (ev.service) setService(ev.stage, ev.service);
+      // Add animated processing placeholder
+      const out = document.getElementById(`out-${ev.stage}`);
+      const proc = document.createElement('div');
+      proc.className = 'out-processing';
+      proc.id = `proc-${ev.stage}`;
+      proc.innerHTML = `<div class="proc-dots"><span></span><span></span><span></span></div><span>${esc(ev.desc||'Processing…')}</span>`;
+      out.appendChild(proc);
+      break;
+    }
+
+    case 'provider':
+      // A stage switched provider (e.g. Ocean.io → Apollo.io)
+      if (ev.service) setService(ev.stage, ev.service);
+      if (ev.note) setNotice(ev.stage, 'warn', ev.note);
+      break;
+
+    case 'log': {
+      if (!ev.stage || ev.level === 'warn') return;
+      const item = parseLogItem(ev.stage, ev.msg);
+      if (item) {
+        const proc = document.getElementById(`proc-${ev.stage}`);
+        if (proc) proc.remove();
+        addOutputItem(ev.stage, item);
+      }
+      break;
+    }
+
+    case 'warn':
+      // attach generic warnings to the currently active stage
+      if (activeStage) setNotice(activeStage, 'warn', ev.msg);
+      break;
+
+    case 'stage_done':
+      setRunningState(ev.stage, false);
+      setNode(ev.stage, 'done');
+      setPill(ev.stage, 'done', `${ev.count} found`);
+      fillConnector(ev.stage);
+      setPipeMsg(ev.stage, ev.count, ev.errors || 0, ev.stage === 4);
+      { const proc = document.getElementById(`proc-${ev.stage}`); if(proc) proc.remove(); }
+      break;
+
+    case 'stage_error':
+      setRunningState(ev.stage, false);
+      setNode(ev.stage, 'error');
+      setPill(ev.stage, 'error', 'Error');
+      setNotice(ev.stage, 'error', ev.error || 'This stage failed.');
+      { const proc = document.getElementById(`proc-${ev.stage}`); if(proc) proc.remove(); }
+      break;
+
+    case 'fatal':
+      // show on active stage, or stage 1 as a fallback
+      setNotice(activeStage || 1, 'error', ev.error || 'Unexpected error.');
+      if (activeStage) { setNode(activeStage, 'error'); setPill(activeStage, 'error', 'Error'); }
+      break;
+
+    case 'info':
+      if (activeStage) setNotice(activeStage, 'warn', ev.msg);
+      break;
+
+    case 'checkpoint':
+      showCheckpoint(ev.contacts, ev.subject_preview, ev.dry_run);
+      break;
+
+    case 'complete':
+      showResults(ev.stats);
+      if (evtSrc) { evtSrc.close(); evtSrc = null; }
+      break;
+
+    case 'cancelled':
+      if (evtSrc) { evtSrc.close(); evtSrc = null; }
+      break;
+
+    case 'done':
+      if (evtSrc) { evtSrc.close(); evtSrc = null; }
+      break;
+  }
+}
+
+/* Update a stage's service-provider label */
+function setService(n, name) {
+  const el = document.getElementById(`svc-${n}`);
+  if (el) el.textContent = name;
+}
+
+/* Show an inline notice (warn/error) under a stage */
+const NOTICE_ICONS = {
+  warn:  `<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 1.5 13 12.5H1z"/><path d="M7 6v3M7 11h.01"/></svg>`,
+  error: `<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3.5M7 10h.01"/></svg>`,
+};
+function setNotice(n, kind, msg) {
+  const el = document.getElementById(`notice-${n}`);
+  if (!el) return;
+  el.className = `stage-notice show ${kind}`;
+  el.innerHTML = `${NOTICE_ICONS[kind] || ''}<span>${esc(msg)}</span>`;
+}
+function clearNotice(n) {
+  const el = document.getElementById(`notice-${n}`);
+  if (el) { el.className = 'stage-notice'; el.innerHTML = ''; }
+}
+
+/* ── Stage node/pill helpers ──────────────────────────────────────────────── */
+function setNode(n, state) {
+  document.getElementById(`node-${n}`).className = `stage-node ${state}`;
+}
+function setPill(n, state, text) {
+  const p = document.getElementById(`pill-${n}`);
+  p.className = `stage-status-pill ${state}`;
+  p.textContent = text;
+}
+function fillConnector(n) {
+  const c = document.getElementById(`conn-${n}`);
+  if (c) c.classList.add('filled');
+}
+function setRunningState(n, on) {
+  // toggle the is-running class on the right panel
+  const el = document.querySelector(`#fs-${n} .flow-right`);
+  if (el) el.classList.toggle('is-running', on);
+}
+function setPipeMsg(n, count, errors, isLast) {
+  const s = document.getElementById(`sum-${n}`);
+  const arrowSvg = `<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>`;
+  if (isLast) {
+    s.innerHTML = `${arrowSvg} <span>${count} contact${count!==1?'s':''} ready to send</span>`;
+  } else {
+    s.innerHTML = `${arrowSvg} <span>${count} result${count!==1?'s':''} — piping to next stage</span>`;
+  }
+  if (errors) {
+    s.innerHTML += `&nbsp;&nbsp;<span style="color:var(--amber)">${errors} skipped</span>`;
+  }
+  // Remove processing placeholder
+  const proc = document.getElementById(`proc-${n}`);
+  if (proc) proc.remove();
+}
+
+/* ── Output item parser ───────────────────────────────────────────────────── */
+const ICONS = {
+  company: `<svg class="out-item-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1.5" y="5" width="11" height="8" rx="0.5"/><path d="M5 13V9.5h4V13"/><path d="M1.5 5 7 1.5 12.5 5"/></svg>`,
+  person:  `<svg class="out-item-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="4.5" r="2.5"/><path d="M1.5 13c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg>`,
+  email:   `<svg class="out-item-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="12" height="8" rx="1"/><path d="M1 3.5 7 8l6-4.5"/></svg>`,
+  send:    `<svg class="out-item-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12.5 1.5 1.5 5.5l4 2 7-6z"/><path d="M5.5 7.5 8 12.5l4.5-11"/></svg>`,
+};
+
+function parseLogItem(stage, msg) {
+  if (stage === 1) {
+    // "Found Northwind Inc. (us, 51-200 employees)"
+    const m = msg.match(/Found (.+?) \((.+?),\s*(.+?)\)/);
+    if (m) return { type:'company', name:m[1], meta:`${m[3].trim()}` };
+    if (msg.startsWith('[')) return null;
+    return { type:'company', name:msg, meta:'' };
+  }
+  if (stage === 2) {
+    // "Jordan Lee — CEO @ northwind.io"
+    const m = msg.match(/(.+?) — (.+?) @ (.+)/);
+    if (m) return { type:'person', name:m[1], meta:`${m[2]} · ${m[3]}` };
+    if (msg.startsWith('[')) return null;
+    return null;
+  }
+  if (stage === 3) {
+    // "jordan.lee@northwind.io  [VERIFIED]  ← Jordan Lee"
+    const m = msg.match(/^(.+?@.+?)\s+\[(.+?)\]/);
+    if (m) return { type:'email', name:m[1], status:m[2] };
+    if (msg.startsWith('[')) return null;
+    return null;
+  }
+  if (stage === 4) {
+    const sent = msg.match(/Sent → (.+?@.+?)(?:\s|$)/);
+    if (sent) return { type:'send', name:sent[1], dry:false };
+    const dry  = msg.match(/\[dry-run\] Would send → (.+?@.+?)(?:\s|$)/);
+    if (dry)  return { type:'send', name:dry[1],  dry:true  };
+    return null;
+  }
+  return null;
+}
+
+function addOutputItem(stage, item) {
+  const container = document.getElementById(`out-${stage}`);
+  stageCounts[stage] = (stageCounts[stage] || 0) + 1;
+
+  // Remove overflow placeholder if exists
+  const over = container.querySelector('.more-chip');
+  if (over) over.remove();
+
+  if (stageCounts[stage] > MAX_ITEMS) {
+    // Show collapsed count
+    const chip = document.createElement('button');
+    chip.className = 'more-chip';
+    const hidden = stageCounts[stage] - MAX_ITEMS;
+    chip.textContent = `+ ${hidden} more`;
+    chip.onclick = () => {
+      chip.style.display = 'none';
+      container.querySelectorAll('.out-item.hidden').forEach(el => el.classList.remove('hidden'));
+    };
+    container.appendChild(chip);
+    return;
+  }
+
+  const el = document.createElement('div');
+  el.className = 'out-item';
+  el.innerHTML = ICONS[item.type === 'send' ? 'send' : item.type === 'email' ? 'email' : item.type === 'person' ? 'person' : 'company'];
+
+  const name = document.createElement('span');
+  name.className = 'out-item-name';
+  name.textContent = item.name;
+  el.appendChild(name);
+
+  if (item.meta) {
+    const meta = document.createElement('span');
+    meta.className = 'out-item-meta';
+    meta.textContent = item.meta;
+    el.appendChild(meta);
+  }
+
+  if (item.status) {
+    const badge = document.createElement('span');
+    badge.className = 'out-badge ' + (item.status === 'VERIFIED' ? 'verified' : item.status === 'RISKY' ? 'risky' : 'unknown');
+    badge.textContent = item.status;
+    el.appendChild(badge);
+  }
+
+  if (item.dry !== undefined) {
+    const badge = document.createElement('span');
+    badge.className = 'out-badge ' + (item.dry ? 'dryrun' : 'sent');
+    badge.textContent = item.dry ? 'DRY-RUN' : 'SENT';
+    el.appendChild(badge);
+  }
+
+  container.appendChild(el);
+}
+
+/* ── Show runner ──────────────────────────────────────────────────────────── */
+function showRunner(domain, mock, dryRun) {
+  document.getElementById('runnerDomain').textContent = domain;
+  const tag = document.getElementById('modeTag');
+  if (mock)         { tag.textContent='MOCK';    tag.className='mode-tag mock'; }
+  else if (dryRun)  { tag.textContent='DRY-RUN'; tag.className='mode-tag dryrun'; }
+  else              { tag.textContent='LIVE';    tag.className='mode-tag live'; }
+
+  // Default service labels (reset each run; server may override via events)
+  const defaultSvc = { 1: 'Apollo.io', 2: 'Prospeo', 3: 'Prospeo', 4: 'Brevo' };
+  activeStage = 0;
+  [1,2,3,4].forEach(n => {
+    setNode(n, 'idle'); setPill(n, 'idle', 'Queued');
+    setRunningState(n, false);
+    setService(n, defaultSvc[n]);
+    clearNotice(n);
+    document.getElementById(`out-${n}`).innerHTML = '';
+    document.getElementById(`sum-${n}`).innerHTML = '';
+    const c = document.getElementById(`conn-${n}`);
+    if (c) c.classList.remove('filled');
+    stageCounts[n] = 0;
+  });
+  document.getElementById('checkpoint').style.display = 'none';
+  document.getElementById('results').style.display    = 'none';
+
+  const r = document.getElementById('runner');
+  r.style.display = 'block';
+  r.classList.add('fade-in');
+  r.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ── Checkpoint ──────────────────────────────────────────────────────────── */
+function showCheckpoint(contacts, preview, isDry) {
+  cpContacts = contacts;
+  document.getElementById('cpSubject').innerHTML = `<strong>Subject preview</strong> — "${esc(preview)}"`;
+  document.getElementById('cpDryNote').style.display = isDry ? 'block' : 'none';
+
+  const tbody = document.getElementById('cpRows');
+  tbody.innerHTML = '';
+  contacts.forEach((c, i) => {
+    const sc = c.status==='VERIFIED'?'verified':c.status==='RISKY'?'risky':'unknown';
+    tbody.insertAdjacentHTML('beforeend',
+      `<tr><td>${i+1}</td><td><strong>${esc(c.name)}</strong></td><td style="color:var(--muted)">${esc(c.title)}</td>
+       <td>${esc(c.company)}</td><td class="cp-email">${esc(c.email)}</td>
+       <td><span class="out-badge ${sc}">${c.status}</span></td></tr>`);
+  });
+
+  const n = contacts.length;
+  const verb = isDry ? 'Simulate' : 'Send';
+  document.getElementById('btnSendLabel').textContent = `${verb} ${n} email${n!==1?'s':''}`;
+  document.getElementById('cpNote').textContent = isDry ? 'Dry-run: nothing will actually send.' : '';
+
+  const cp = document.getElementById('checkpoint');
+  cp.style.display = 'block';
+  cp.classList.add('fade-in');
+  setTimeout(() => cp.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+async function confirmSend() {
+  if (!jobId) return;
+  document.getElementById('checkpoint').style.display = 'none';
+  setNode(4, 'running'); setPill(4, 'running', 'Running');
+  await fetch(`/api/confirm/${jobId}`, { method:'POST' });
+}
+async function cancelPipeline() {
+  if (!jobId) return;
+  document.getElementById('checkpoint').style.display = 'none';
+  await fetch(`/api/cancel/${jobId}`, { method:'POST' });
+}
+
+/* ── Results ─────────────────────────────────────────────────────────────── */
+function showResults(stats) {
+  const dry = stats.dry_run;
+  document.getElementById('resTitle').textContent = dry ? 'Dry-run complete' : 'Pipeline complete';
+  document.getElementById('resSub').textContent = dry
+    ? `Found ${stats.contacts} deliverable contacts. ${stats.sent} emails would have been sent.`
+    : `${stats.sent} personalised emails sent successfully.`;
+
+  document.getElementById('statsRow').innerHTML = [
+    { n:stats.companies, l:'Lookalike companies' },
+    { n:stats.prospects, l:'Decision-makers' },
+    { n:stats.contacts,  l:'Emails resolved' },
+    { n:stats.sent,      l: dry ? 'Would send' : 'Emails sent' },
+  ].map(s => `<div class="stat-cell"><div class="stat-n">${s.n}</div><div class="stat-l">${s.l}</div></div>`).join('');
+
+  const r = document.getElementById('results');
+  r.style.display = 'block';
+  r.classList.add('fade-in');
+  setTimeout(() => r.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+function resetUI() {
+  if (jobId) { fetch(`/api/cancel/${jobId}`, {method:'POST'}).catch(()=>{}); jobId=null; }
+  if (evtSrc) { evtSrc.close(); evtSrc=null; }
+  document.getElementById('runner').style.display = 'none';
+  document.getElementById('domainInput').value = '';
+  window.scrollTo({ top:0, behavior:'smooth' });
+  setTimeout(() => document.getElementById('domainInput').focus(), 400);
+}
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function shakeInput() {
+  const w = document.querySelector('.search-card');
+  const s = [-7,7,-5,5,-2,2,0];
+  let i=0;
+  const t = () => { if(i>=s.length){w.style.transform='';return;} w.style.transform=`translateX(${s[i++]}px)`; setTimeout(t,55); };
+  t(); document.getElementById('domainInput').focus();
+}
+function toggleFaq(btn) {
+  btn.closest('.faq-row').classList.toggle('open');
+}
+</script>
+</body>
+</html>

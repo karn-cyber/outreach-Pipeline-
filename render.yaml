@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: outreach-pipeline
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn server:app --workers 1 --threads 8 --worker-class gthread --timeout 300 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: OCEAN_API_TOKEN
+        sync: false
+      - key: APOLLO_API_KEY
+        sync: false
+      - key: PROSPEO_API_KEY
+        sync: false
+      - key: USE_PROSPEO_EMAIL
+        value: "true"
+      - key: BREVO_API_KEY
+        sync: false
+      - key: SENDER_EMAIL
+        sync: false
+      - key: SENDER_NAME
+        value: "Neelanshu Karn"
+      - key: REPLY_TO_EMAIL
+        sync: false
+      - key: TEST_RECIPIENT
+        sync: false
+      - key: YOUR_COMPANY_NAME
+        value: "Subspace"
+      - key: YOUR_ONE_LINER
+        value: "I build automated outreach pipelines that take a domain in and send personalised emails to decision-makers"
+      - key: APP_USERNAME
+        value: "admin"
+      - key: APP_PASSWORD
+        sync: false

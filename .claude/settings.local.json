@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python3 run.py --domain stripe.com --mock --yes)",
+      "Bash(timeout 60 python3 run.py --domain stripe.com --dry-run --yes --max-companies 3 --max-prospects-per-company 2 --max-emails 5)",
+      "Bash(curl -s https://api.ocean.io/v1/me -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s https://api.ocean.io/v2/account -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb')",
+      "Bash(curl -s -X POST https://api.ocean.io/v2/search/companies -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"size\": 3, \"from\": 1, \"companiesFilters\": {\"lookalikeDomains\": [\"stripe.com\"]}}')",
+      "Bash(curl -s -X POST https://api.ocean.io/v1/search/companies -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"size\": 3, \"from\": 1, \"companiesFilters\": {\"lookalikeDomains\": [\"stripe.com\"]}}')",
+      "Bash(curl -s -X POST https://api.ocean.io/v2/search/companies -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"size\": 3, \"from\": 1, \"companiesFilters\": {\"keyword\": \"payment processing\"}}')",
+      "Bash(curl -s -X POST https://api.ocean.io/v2/companies/lookalike -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"domain\": \"stripe.com\", \"size\": 3}')",
+      "Bash(curl -s -X POST https://api.ocean.io/v2/search/companies -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"size\": 3, \"from\": 1, \"companiesFilters\": {}}')",
+      "Bash(curl -s -X POST https://api.ocean.io/v2/search/companies -H 'x-api-token: api_1YfL5c_l9VLEEJONV3yOPFqYy0BQ1FVsswjv4gb' -H 'Content-Type: application/json' -d '{\"size\": 3, \"from\": 1, \"companiesFilters\": {\"companySizes\": [\"51-200\", \"11-50\"]}}')",
+      "WebFetch(domain:prospeo.io)",
+      "WebFetch(domain:docs.apollo.io)",
+      "WebFetch(domain:developer.apollo.io)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5050/api/health)",
+      "Bash(cp runs/suppression.json runs/suppression.json.bak)",
+      "Bash(echo \"[]\")",
+      "Bash(python3 run.py --domain figma.com --dry-run --yes --max-companies 6 --max-prospects-per-company 3 --max-emails 2)",
+      "Bash(xargs kill -9)"
+    ]
+  }
+}
