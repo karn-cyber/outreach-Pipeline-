@@ -46,25 +46,98 @@ app = Flask(__name__, static_folder="static", static_url_path="")
 CORS(app)
 
 
-# ── Optional password gate ────────────────────────────────────────────────────
-# When APP_PASSWORD is set (recommended for a public deploy), the whole app
-# requires HTTP Basic auth. The browser prompts once and reuses the credentials
-# for the SSE stream too. Leave APP_PASSWORD blank to run fully open (local dev).
+# ── Clerk authentication (multi-tenant) ──────────────────────────────────────
+# When CLERK_SECRET_KEY + a publishable key are set, the credit-spending actions
+# (/api/run, /api/confirm, /api/cancel) require a signed-in Clerk user. The
+# marketing page and the SSE stream stay open (the stream is guarded by an
+# unguessable job_id). Leave the keys blank to run fully open (local dev).
+import base64
+
+# Read via settings (loads from .env locally AND from env vars on Render),
+# with an os.getenv fallback for the NEXT_PUBLIC_-prefixed name.
+_CLERK_PUBLISHABLE = (
+    settings.clerk_publishable_key
+    or os.getenv("CLERK_PUBLISHABLE_KEY")
+    or os.getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "")
+)
+_CLERK_SECRET = settings.clerk_secret_key or os.getenv("CLERK_SECRET_KEY", "")
+
+
+def _derive_clerk_frontend_api(pk: str) -> str:
+    """pk_test_<base64('frontend-api$')> → https://frontend-api"""
+    try:
+        b64 = pk.split("_", 2)[2]
+        decoded = base64.b64decode(b64 + "===").decode("utf-8")
+        return "https://" + decoded.rstrip("$")
+    except Exception:
+        return ""
+
+
+_CLERK_FRONTEND_API = _derive_clerk_frontend_api(_CLERK_PUBLISHABLE)
+_CLERK_ENABLED = bool(_CLERK_PUBLISHABLE and _CLERK_SECRET and _CLERK_FRONTEND_API)
+
+_jwks_client = None
+if _CLERK_ENABLED:
+    try:
+        from jwt import PyJWKClient
+        _jwks_client = PyJWKClient(_CLERK_FRONTEND_API + "/.well-known/jwks.json")
+    except Exception as exc:  # pyjwt missing → disable rather than crash
+        logging.warning("Clerk JWKS init failed (%s) — auth disabled", exc)
+        _CLERK_ENABLED = False
+
+
+def _verify_clerk_request():
+    """Return (user_id, None) if authed, or (None, error_response) if not.
+
+    When Clerk is disabled, returns ("local-dev", None) so the app stays open.
+    """
+    if not _CLERK_ENABLED:
+        return "local-dev", None
+    import jwt
+    header = request.headers.get("Authorization", "")
+    token = header[7:].strip() if header.startswith("Bearer ") else ""
+    if not token:
+        return None, (jsonify({"error": "Please sign in to run a pipeline."}), 401)
+    try:
+        signing_key = _jwks_client.get_signing_key_from_jwt(token)
+        claims = jwt.decode(
+            token, signing_key.key, algorithms=["RS256"],
+            options={"verify_aud": False},
+            leeway=10,
+        )
+        return claims.get("sub", "unknown"), None
+    except Exception as exc:
+        logging.info("Clerk token rejected: %s", exc)
+        return None, (jsonify({"error": "Your session is invalid or expired — sign in again."}), 401)
+
+
+# ── Optional HTTP-Basic password gate (legacy, off when Clerk is on) ──────────
 _APP_USERNAME = os.getenv("APP_USERNAME", "admin")
 _APP_PASSWORD = os.getenv("APP_PASSWORD", "")
 
 
 @app.before_request
-def _require_auth():
-    if not _APP_PASSWORD:
-        return  # auth disabled
+def _require_basic_auth():
+    if not _APP_PASSWORD or _CLERK_ENABLED:
+        return  # disabled (Clerk takes over when enabled)
     auth = request.authorization
     if auth and auth.username == _APP_USERNAME and auth.password == _APP_PASSWORD:
         return
     return Response(
         "Authentication required.", 401,
-        {"WWW-Authenticate": 'Basic realm="Outreach Pipeline"'},
+        {"WWW-Authenticate": 'Basic realm="Adrexon"'},
     )
+
+
+@app.route("/api/config")
+def public_config():
+    """Public config the SPA needs before it can boot Clerk."""
+    return jsonify({
+        "app_name": "Adrexon",
+        "clerk_enabled": _CLERK_ENABLED,
+        "clerk_publishable_key": _CLERK_PUBLISHABLE if _CLERK_ENABLED else "",
+        "clerk_frontend_api": _CLERK_FRONTEND_API if _CLERK_ENABLED else "",
+    })
 
 # In-memory job store — keyed by job_id.
 # Each entry: {queue, confirm_event, confirmed, created_at, domain}
@@ -119,6 +192,11 @@ def health():
 
 @app.route("/api/run", methods=["POST"])
 def start_run():
+    # Multi-tenant gate: a signed-in Clerk user is required to spend credits.
+    user_id, err = _verify_clerk_request()
+    if err:
+        return err
+
     _cleanup_old_jobs()
 
     data = request.get_json(silent=True) or {}
@@ -163,6 +241,7 @@ def start_run():
             "confirm_event": confirm_event,
             "confirmed": None,
             "domain": domain,
+            "user_id": user_id,          # tenant owner of this run
             "created_at": time.time(),
         }
 
@@ -212,9 +291,14 @@ def stream(job_id: str):
 
 @app.route("/api/confirm/<job_id>", methods=["POST"])
 def confirm(job_id: str):
+    user_id, err = _verify_clerk_request()
+    if err:
+        return err
     job = _jobs.get(job_id)
     if not job:
         return jsonify({"error": "job not found"}), 404
+    if _CLERK_ENABLED and job.get("user_id") != user_id:
+        return jsonify({"error": "not your run"}), 403
     job["confirmed"] = True
     job["confirm_event"].set()
     return jsonify({"ok": True})
@@ -222,9 +306,14 @@ def confirm(job_id: str):
 
 @app.route("/api/cancel/<job_id>", methods=["POST"])
 def cancel(job_id: str):
+    user_id, err = _verify_clerk_request()
+    if err:
+        return err
     job = _jobs.get(job_id)
     if not job:
         return jsonify({"error": "job not found"}), 404
+    if _CLERK_ENABLED and job.get("user_id") != user_id:
+        return jsonify({"error": "not your run"}), 403
     job["confirmed"] = False
     job["confirm_event"].set()
     return jsonify({"ok": True})
@@ -488,5 +577,5 @@ if __name__ == "__main__":
     # Local dev. In production a WSGI server (gunicorn) imports `app` instead.
     port = int(os.getenv("PORT", "5050"))
     debug = os.getenv("FLASK_DEBUG", "1") == "1"
-    print(f"\n  >_ Outreach Pipeline  —  http://localhost:{port}\n")
+    print(f"\n  >_ Adrexon  —  http://localhost:{port}\n")
     app.run(host="0.0.0.0", debug=debug, threaded=True, port=port, use_reloader=False)

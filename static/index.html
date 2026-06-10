@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Outreach Pipeline</title>
+  <title>Adrexon — Autonomous B2B Outreach</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -85,6 +85,9 @@ button { cursor:pointer; font-family:var(--font); border:none; background:none; 
   transition:opacity 0.2s;
 }
 .nav-btn-dark:hover { opacity:0.85; }
+.nav-btn-dark { cursor:pointer; border:none; }
+.auth-slot { display:flex; align-items:center; min-width:32px; min-height:32px; }
+.auth-slot .cl-userButtonBox { transform:scale(1.05); }
 
 /* ── Hero ───────────────────────────────────────────────────────────────────── */
 .hero {
@@ -704,8 +707,8 @@ footer p { font-size:0.8rem; }
 <!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
 <nav class="nav" id="navbar">
   <a class="nav-logo" href="#home">
-    <div class="nav-logo-mark">&gt;_</div>
-    Outreach Pipeline
+    <div class="nav-logo-mark">A</div>
+    Adrexon
   </a>
   <div class="nav-links">
     <a class="nav-link" href="#how-it-works">How it Works</a>
@@ -713,10 +716,7 @@ footer p { font-size:0.8rem; }
     <a class="nav-link" href="#faq">FAQ</a>
   </div>
   <a class="nav-btn-ghost" href="#how-it-works">Explore</a>
-  <a class="nav-btn-dark" href="#home" onclick="setTimeout(()=>document.getElementById('domainInput').focus(),100)">
-    Launch
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
-  </a>
+  <div id="authSlot" class="auth-slot"></div>
 </nav>
 
 <!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
@@ -733,7 +733,7 @@ footer p { font-size:0.8rem; }
   <div class="hero-inner">
     <div class="section-tag">01 · THE PIPELINE</div>
     <h1 class="hero-title">One domain in.<br>Full outreach out.</h1>
-    <p class="hero-sub">Type a seed domain. The pipeline finds lookalike companies, surfaces decision-makers, resolves verified emails, and sends personalised outreach — autonomously.</p>
+    <p class="hero-sub">Type a seed domain. The pipeline finds lookalike companies, surfaces decision-makers, resolves verified emails, and sends personalised adrexon — autonomously.</p>
 
     <div class="search-card">
       <div class="search-row">
@@ -941,7 +941,7 @@ footer p { font-size:0.8rem; }
       <div class="term-display">
         <div class="term-titlebar">
           <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-          <span class="tterm-name" id="termTitle">outreach — seed-input</span>
+          <span class="tterm-name" id="termTitle">adrexon — seed-input</span>
         </div>
         <div class="term-body" id="termBody"></div>
       </div>
@@ -1049,7 +1049,7 @@ footer p { font-size:0.8rem; }
 
 <!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
 <footer>
-  <div class="footer-logo">&gt;_ outreach-pipeline</div>
+  <div class="footer-logo">&gt;_ adrexon</div>
   <p>Apollo.io · Prospeo · Brevo</p>
   <div class="footer-links">
     <a href="#home">Home</a>
@@ -1079,7 +1079,7 @@ window.addEventListener('scroll', () => {
 /* ── Terminal stage explorer ───────────────────────────────────────────────── */
 const TERM_CONTENT = [
   {
-    name: 'outreach — seed-input',
+    name: 'adrexon — seed-input',
     lines: [
       {c:'tl-dim',  t:'# You provide one thing — a seed domain.'},
       {c:'tl-blank'},
@@ -1093,7 +1093,7 @@ const TERM_CONTENT = [
     ]
   },
   {
-    name: 'outreach — stage-01-apollo',
+    name: 'adrexon — stage-01-apollo',
     lines: [
       {c:'tl-dim',  t:'# Stage 01: Apollo.io — lookalike company discovery'},
       {c:'tl-dim',  t:'# (Ocean.io tried first; falls back to Apollo on free plan)'},
@@ -1114,7 +1114,7 @@ const TERM_CONTENT = [
     ]
   },
   {
-    name: 'outreach — stage-02-prospeo',
+    name: 'adrexon — stage-02-prospeo',
     lines: [
       {c:'tl-dim',   t:'# Stage 02: Prospeo — C-suite & VP decision-makers'},
       {c:'tl-blank'},
@@ -1133,7 +1133,7 @@ const TERM_CONTENT = [
     ]
   },
   {
-    name: 'outreach — stage-03-prospeo-email',
+    name: 'adrexon — stage-03-prospeo-email',
     lines: [
       {c:'tl-dim',    t:'# Stage 03: Prospeo Email Finder — LinkedIn URL → verified email'},
       {c:'tl-dim',    t:'# (drop-in Eazyreach replacement per Vocallabs FAQ)'},
@@ -1154,7 +1154,7 @@ const TERM_CONTENT = [
     ]
   },
   {
-    name: 'outreach — stage-04-brevo',
+    name: 'adrexon — stage-04-brevo',
     lines: [
       {c:'tl-dim',   t:'# Stage 04: Brevo — personalised outreach send'},
       {c:'tl-blank'},
@@ -1197,7 +1197,74 @@ window.addEventListener('DOMContentLoaded', () => {
   setupHeroLoop();
   const depthSel = document.getElementById('depthSelect');
   if (depthSel) depthSel.addEventListener('change', updateDepthHint);
+  initClerk();
 });
+
+/* ── Clerk authentication (multi-tenant) ──────────────────────────────────── */
+let CLERK_ON = false;     // is auth enforced?
+let CLERK_READY = false;  // has clerk-js finished loading?
+
+async function initClerk() {
+  let cfg = {};
+  try { cfg = await fetch('/api/config').then(r => r.json()); } catch (_) {}
+  if (!cfg.clerk_enabled) {
+    // Auth disabled (local dev) — show nothing in the slot.
+    renderAuthSlot();
+    return;
+  }
+  CLERK_ON = true;
+  renderAuthSlot();   // show "Sign in" immediately, before clerk-js finishes loading
+  const s = document.createElement('script');
+  s.setAttribute('data-clerk-publishable-key', cfg.clerk_publishable_key);
+  s.src = cfg.clerk_frontend_api + '/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+  s.async = true;
+  s.crossOrigin = 'anonymous';
+  s.onload = async () => {
+    try {
+      await Clerk.load();
+      CLERK_READY = true;
+      renderAuthSlot();
+      Clerk.addListener(renderAuthSlot);
+    } catch (e) { console.error('Clerk load failed', e); }
+  };
+  s.onerror = () => console.error('Failed to load Clerk script');
+  document.head.appendChild(s);
+}
+
+function renderAuthSlot() {
+  const slot = document.getElementById('authSlot');
+  if (!slot) return;
+  if (CLERK_ON && CLERK_READY && window.Clerk && Clerk.user) {
+    slot.innerHTML = '<div id="clerkUserBtn"></div>';
+    try { Clerk.mountUserButton(document.getElementById('clerkUserBtn'), { afterSignOutUrl: '/' }); } catch (_) {}
+  } else if (CLERK_ON) {
+    slot.innerHTML =
+      '<button class="nav-btn-dark" onclick="openSignIn()">Sign in' +
+      '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg></button>';
+  } else {
+    slot.innerHTML = '';
+  }
+}
+
+function openSignIn() {
+  if (window.Clerk && CLERK_READY) Clerk.openSignIn({});
+}
+
+// Returns auth headers (with the Clerk session token) for credit-spending calls.
+async function authHeaders() {
+  if (CLERK_ON && CLERK_READY && window.Clerk && Clerk.session) {
+    try {
+      const t = await Clerk.session.getToken();
+      if (t) return { 'Authorization': 'Bearer ' + t };
+    } catch (_) {}
+  }
+  return {};
+}
+
+// True if the user must sign in before running.
+function needsSignIn() {
+  return CLERK_ON && (!CLERK_READY || !window.Clerk || !Clerk.user);
+}
 
 /* ── Seamless crossfade loop for the hero video ───────────────────────────────
    The source clip has a hard cut at its loop point. Instead of the native
@@ -1296,14 +1363,18 @@ async function launchPipeline() {
   const demoEmail = document.getElementById('demoEmail').value.trim();
   if (!domain) { shakeInput(); return; }
 
+  // Multi-tenant gate: require sign-in before spending credits.
+  if (needsSignIn()) { openSignIn(); return; }
+
   const preset = DEPTH_PRESETS[depth] || DEPTH_PRESETS.demo;
   const btn = document.getElementById('launchBtn');
   btn.classList.add('loading'); btn.disabled = true;
 
   try {
+    const hdrs = await authHeaders();
     const r = await fetch('/api/run', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{ 'Content-Type':'application/json', ...hdrs },
       body: JSON.stringify({
         domain, mock, dry_run: dryRun,
         demo_email: demoEmail,
@@ -1642,12 +1713,12 @@ async function confirmSend() {
   if (!jobId) return;
   document.getElementById('checkpoint').style.display = 'none';
   setNode(4, 'running'); setPill(4, 'running', 'Running');
-  await fetch(`/api/confirm/${jobId}`, { method:'POST' });
+  await fetch(`/api/confirm/${jobId}`, { method:'POST', headers: await authHeaders() });
 }
 async function cancelPipeline() {
   if (!jobId) return;
   document.getElementById('checkpoint').style.display = 'none';
-  await fetch(`/api/cancel/${jobId}`, { method:'POST' });
+  await fetch(`/api/cancel/${jobId}`, { method:'POST', headers: await authHeaders() });
 }
 
 /* ── Results ─────────────────────────────────────────────────────────────── */

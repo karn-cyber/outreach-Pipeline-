@@ -6,12 +6,18 @@ keys are easy to rotate.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Absolute path to the project-root .env so it loads no matter the working
+# directory (the preview server and gunicorn can run from elsewhere).
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=str(_ENV_PATH), env_file_encoding="utf-8", extra="ignore"
     )
 
     # Stage 1 — Company discovery
@@ -48,6 +54,11 @@ class Settings(BaseSettings):
     # inbox (real sourcing + real copy, just delivered to you). Leave blank
     # for a true campaign that mails the actual prospects.
     test_recipient: str = ""
+
+    # Clerk authentication (multi-tenant). When both are set, the web app
+    # requires a signed-in Clerk user to run a pipeline.
+    clerk_publishable_key: str = ""
+    clerk_secret_key: str = ""
 
     # Personalisation
     your_company_name: str = "Acme"
