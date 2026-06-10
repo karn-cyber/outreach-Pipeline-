@@ -83,6 +83,10 @@ def _normalise_domain(raw: str) -> str:
     return re.sub(r"^www\.", "", raw)
 
 
+def _valid_email(addr: str) -> bool:
+    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", addr))
+
+
 def _cleanup_old_jobs() -> None:
     cutoff = time.time() - _JOB_TTL_SECONDS
     with _jobs_lock:
@@ -142,6 +146,13 @@ def start_run():
         "max_emails":      _clamp(data.get("max_emails"), settings.default_max_emails, 1, 25),
     }
 
+    # Per-run demo redirect: if the visitor gives their own email, every send
+    # for THIS run goes to them instead of the default TEST_RECIPIENT. Lets a
+    # hiring manager watch real outreach land in their own inbox, live.
+    demo_email = str(data.get("demo_email", "")).strip()
+    if demo_email and not _valid_email(demo_email):
+        return jsonify({"error": "that doesn't look like a valid email"}), 400
+
     job_id = str(uuid.uuid4())
     ev_queue: Queue = Queue()
     confirm_event = threading.Event()
@@ -157,7 +168,7 @@ def start_run():
 
     thread = threading.Thread(
         target=_pipeline_thread,
-        args=(job_id, domain, use_mock, dry_run, caps),
+        args=(job_id, domain, use_mock, dry_run, caps, demo_email),
         daemon=True,
         name=f"pipeline-{job_id[:8]}",
     )
@@ -221,7 +232,8 @@ def cancel(job_id: str):
 
 # ── Pipeline thread ───────────────────────────────────────────────────────────
 
-def _pipeline_thread(job_id: str, domain: str, use_mock: bool, dry_run: bool, caps: dict | None = None) -> None:
+def _pipeline_thread(job_id: str, domain: str, use_mock: bool, dry_run: bool,
+                     caps: dict | None = None, demo_email: str = "") -> None:
     caps = caps or {
         "max_companies": settings.default_max_companies,
         "max_searches": 4,
@@ -232,6 +244,8 @@ def _pipeline_thread(job_id: str, domain: str, use_mock: bool, dry_run: bool, ca
     MAX_SEARCHES  = caps.get("max_searches", 4)
     MAX_PROSPECTS = caps["max_prospects"]
     MAX_EMAILS    = caps["max_emails"]
+    # Per-run demo recipient overrides the configured TEST_RECIPIENT
+    redirect_to = demo_email or settings.test_recipient
     job = _jobs.get(job_id, {})
     q: Queue = job.get("queue", Queue())
     confirm_event: threading.Event = job.get("confirm_event", threading.Event())
@@ -286,11 +300,11 @@ def _pipeline_thread(job_id: str, domain: str, use_mock: bool, dry_run: bool, ca
                         settings.sender_email,
                         settings.sender_name,
                         settings.reply_to_email,
-                        test_recipient=settings.test_recipient,
+                        test_recipient=redirect_to,
                     ))
-                    if settings.test_recipient:
+                    if redirect_to:
                         emit({"type": "warn",
-                              "msg": f"Demo mode — all sends redirected to {settings.test_recipient} (real prospects are NOT emailed)"})
+                              "msg": f"Demo mode — every email is delivered to {redirect_to}, not the real prospects."})
 
             # ── Stage 1: Lookalike companies ─────────────────────────────────
             # Apollo.io is the working provider (Ocean.io's free plan can't do

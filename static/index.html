@@ -196,6 +196,18 @@ button { cursor:pointer; font-family:var(--font); border:none; background:none; 
 .opt-label span { font-weight:500; color:var(--text); }
 .opt-label small { color:var(--muted); font-weight:400; }
 .opt-depth { margin-left:auto; }
+.search-deliver {
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.625rem 1.125rem;
+  border-top:1px solid var(--border);
+  background:#faf8f5;
+}
+.search-deliver .deliver-icon { color:var(--muted); flex-shrink:0; }
+#demoEmail {
+  flex:1; border:none; outline:none; background:transparent;
+  font-size:0.8125rem; font-family:var(--mono); color:var(--text);
+}
+#demoEmail::placeholder { color:#b8b3aa; font-family:var(--font); font-weight:400; }
 .opt-depth select {
   font-family:var(--font); font-size:0.8125rem; font-weight:500;
   color:var(--text); background:#fff;
@@ -755,6 +767,11 @@ footer p { font-size:0.8rem; }
           <small id="depthHint">~1 Apollo · ~4 Prospeo</small>
         </label>
       </div>
+      <div class="search-deliver">
+        <svg class="deliver-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="m2 4 6 4.5L14 4"/></svg>
+        <input id="demoEmail" type="email" autocomplete="email" spellcheck="false"
+               placeholder="your@email.com — get the demo emails in your own inbox (optional)" />
+      </div>
     </div>
   </div>
 </section>
@@ -1276,6 +1293,7 @@ async function launchPipeline() {
   const mock    = document.getElementById('mockMode').checked;
   const dryRun  = document.getElementById('dryRun').checked;
   const depth   = document.getElementById('depthSelect').value;
+  const demoEmail = document.getElementById('demoEmail').value.trim();
   if (!domain) { shakeInput(); return; }
 
   const preset = DEPTH_PRESETS[depth] || DEPTH_PRESETS.demo;
@@ -1288,6 +1306,7 @@ async function launchPipeline() {
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         domain, mock, dry_run: dryRun,
+        demo_email: demoEmail,
         max_companies: preset.max_companies,
         max_searches: preset.max_searches,
         max_prospects: preset.max_prospects,
