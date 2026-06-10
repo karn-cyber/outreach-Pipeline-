@@ -86,7 +86,9 @@ button { cursor:pointer; font-family:var(--font); border:none; background:none; 
 }
 .nav-btn-dark:hover { opacity:0.85; }
 .nav-btn-dark { cursor:pointer; border:none; }
-.auth-slot { display:flex; align-items:center; min-width:32px; min-height:32px; }
+/* Auth slot: only takes space when it actually has a button/avatar */
+.auth-slot { display:flex; align-items:center; }
+.auth-slot:empty { display:none; }
 .auth-slot .cl-userButtonBox { transform:scale(1.05); }
 
 /* ── Hero ───────────────────────────────────────────────────────────────────── */
@@ -1201,8 +1203,10 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Clerk authentication (multi-tenant) ──────────────────────────────────── */
-let CLERK_ON = false;     // is auth enforced?
-let CLERK_READY = false;  // has clerk-js finished loading?
+let CLERK_ON = false;       // is auth enforced?
+let CLERK_READY = false;    // has clerk-js finished loading?
+let _pendingSignIn = false; // user asked to sign in before Clerk was ready
+let _pendingLaunch = false; // user clicked Launch while signed out → run after sign-in
 
 async function initClerk() {
   let cfg = {};
@@ -1224,11 +1228,21 @@ async function initClerk() {
       await Clerk.load();
       CLERK_READY = true;
       renderAuthSlot();
-      Clerk.addListener(renderAuthSlot);
+      // If the user clicked something before Clerk finished loading, honour it now.
+      if (_pendingSignIn || _pendingLaunch) { _pendingSignIn = false; Clerk.openSignIn({}); }
+      Clerk.addListener(() => { renderAuthSlot(); _resumeAfterAuth(); });
     } catch (e) { console.error('Clerk load failed', e); }
   };
   s.onerror = () => console.error('Failed to load Clerk script');
   document.head.appendChild(s);
+}
+
+// After a successful sign-in, auto-continue the action the user originally wanted.
+function _resumeAfterAuth() {
+  if (_pendingLaunch && window.Clerk && Clerk.user) {
+    _pendingLaunch = false;
+    setTimeout(launchPipeline, 150);  // let the modal close first
+  }
 }
 
 function renderAuthSlot() {
@@ -1248,6 +1262,7 @@ function renderAuthSlot() {
 
 function openSignIn() {
   if (window.Clerk && CLERK_READY) Clerk.openSignIn({});
+  else if (CLERK_ON) _pendingSignIn = true;  // open as soon as Clerk is ready
 }
 
 // Returns auth headers (with the Clerk session token) for credit-spending calls.
@@ -1363,8 +1378,9 @@ async function launchPipeline() {
   const demoEmail = document.getElementById('demoEmail').value.trim();
   if (!domain) { shakeInput(); return; }
 
-  // Multi-tenant gate: require sign-in before spending credits.
-  if (needsSignIn()) { openSignIn(); return; }
+  // Multi-tenant gate: clicking Launch while signed out opens the sign-in /
+  // sign-up modal (it does NOT run). After signing in, the run auto-continues.
+  if (needsSignIn()) { _pendingLaunch = true; openSignIn(); return; }
 
   const preset = DEPTH_PRESETS[depth] || DEPTH_PRESETS.demo;
   const btn = document.getElementById('launchBtn');
