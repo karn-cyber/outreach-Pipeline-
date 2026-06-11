@@ -65,6 +65,9 @@ class Settings(BaseSettings):
     your_one_liner: str = "we help teams automate their cold outreach"
     your_calendar_link: str = ""
 
+    # MongoDB (CRM persistence)
+    mongodb_uri: str = ""
+
     # Credit-aware defaults — free Apollo (85/mo) + Prospeo (50/day) burn fast.
     # Keep demo runs small; bump these only for a real campaign.
     default_min_score: float = 0.80

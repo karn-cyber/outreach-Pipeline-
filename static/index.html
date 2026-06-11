@@ -911,7 +911,13 @@ footer p { font-size:0.8rem; }
     <div class="res-title" id="resTitle">Pipeline complete</div>
     <div class="res-sub" id="resSub"></div>
     <div class="stats-row" id="statsRow"></div>
-    <button class="btn-restart" onclick="resetUI()">Run another domain</button>
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.875rem;flex-wrap:wrap;margin-top:1.5rem">
+      <button class="btn-restart" onclick="resetUI()">Run another domain</button>
+      <a href="/dashboard" class="btn-restart" style="background:var(--purple);display:inline-flex;align-items:center;gap:0.5rem">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="7" cy="4.5" r="2.5"/><path d="M1.5 13c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/></svg>
+        View in CRM
+      </a>
+    </div>
   </div>
 </div>
 
@@ -1249,14 +1255,16 @@ function renderAuthSlot() {
   const slot = document.getElementById('authSlot');
   if (!slot) return;
   if (CLERK_ON && CLERK_READY && window.Clerk && Clerk.user) {
-    slot.innerHTML = '<div id="clerkUserBtn"></div>';
+    slot.innerHTML =
+      '<a href="/dashboard" class="nav-btn-ghost" style="margin-right:0.375rem">Dashboard</a>' +
+      '<div id="clerkUserBtn"></div>';
     try { Clerk.mountUserButton(document.getElementById('clerkUserBtn'), { afterSignOutUrl: '/' }); } catch (_) {}
   } else if (CLERK_ON) {
     slot.innerHTML =
       '<button class="nav-btn-dark" onclick="openSignIn()">Sign in' +
       '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg></button>';
   } else {
-    slot.innerHTML = '';
+    slot.innerHTML = '<a href="/dashboard" class="nav-btn-ghost">Dashboard</a>';
   }
 }
 

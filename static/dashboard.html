@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adrexon CRM — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+/* ── Variables ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #f4f1ec;
+  --surface:     #ffffff;
+  --dark:        #111110;
+  --text:        #1c1b18;
+  --muted:       #78746d;
+  --muted2:      #a8a29e;
+  --border:      #e5e1da;
+  --border2:     #ede9e3;
+  --purple:      #5b3fff;
+  --purple-lt:   #eeebff;
+  --green:       #15803d;
+  --green-lt:    #f0fdf4;
+  --red:         #dc2626;
+  --red-lt:      #fef2f2;
+  --amber:       #b45309;
+  --amber-lt:    #fffbeb;
+  --blue:        #1d4ed8;
+  --blue-lt:     #eff6ff;
+  --sidebar-w:   230px;
+  --header-h:    60px;
+  --font:        'Inter', system-ui, sans-serif;
+  --mono:        'JetBrains Mono', monospace;
+  --r:           10px;
+  --shadow:      0 2px 16px rgba(0,0,0,0.07);
+  --shadow-sm:   0 1px 6px rgba(0,0,0,0.06);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size:16px; }
+body { font-family:var(--font); color:var(--text); background:var(--bg); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+a { color:inherit; text-decoration:none; }
+button { cursor:pointer; font-family:var(--font); border:none; background:none; }
+input, textarea, select { font-family:var(--font); font-size:0.875rem; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────────── */
+.app { display:flex; min-height:100vh; }
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────────── */
+.sidebar {
+  width:var(--sidebar-w); flex-shrink:0;
+  background:var(--surface); color:var(--text);
+  display:flex; flex-direction:column;
+  position:fixed; top:0; left:0; bottom:0; z-index:100;
+  border-right:1px solid var(--border);
+}
+.sidebar-logo {
+  display:flex; align-items:center; gap:0.625rem;
+  padding:1.125rem 1.25rem 1rem;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark {
+  width:30px; height:30px; border-radius:7px;
+  background:var(--dark); color:#fff;
+  font-family:var(--mono); font-size:0.7rem; font-weight:600;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.logo-name { font-weight:700; font-size:0.9rem; letter-spacing:-0.01em; color:var(--dark); }
+.logo-badge {
+  margin-left:auto;
+  font-family:var(--mono); font-size:0.55rem; font-weight:600;
+  background:var(--purple-lt); color:var(--purple);
+  padding:0.15rem 0.45rem; border-radius:3px; text-transform:uppercase; letter-spacing:0.08em;
+}
+
+.sidebar-section { padding:0.875rem 0.75rem 0.25rem; }
+.sidebar-section-label {
+  font-size:0.625rem; font-weight:600; text-transform:uppercase; letter-spacing:0.12em;
+  color:var(--muted2); padding:0 0.5rem; margin-bottom:0.25rem;
+}
+.nav-item {
+  display:flex; align-items:center; gap:0.625rem;
+  padding:0.5rem 0.75rem; border-radius:7px;
+  font-size:0.8125rem; font-weight:500; color:var(--muted);
+  cursor:pointer; transition:all 0.15s; margin-bottom:0.125rem;
+  border:none; background:none; width:100%; text-align:left;
+}
+.nav-item:hover { background:var(--bg); color:var(--text); }
+.nav-item.active { background:var(--bg); color:var(--dark); font-weight:600; }
+.nav-item .nav-icon { width:16px; height:16px; flex-shrink:0; opacity:0.6; }
+.nav-item.active .nav-icon { opacity:1; color:var(--purple); }
+.nav-badge {
+  margin-left:auto; font-size:0.625rem; font-weight:700;
+  background:var(--red); color:#fff; border-radius:10px;
+  padding:0.1rem 0.45rem; min-width:18px; text-align:center;
+}
+
+.sidebar-footer {
+  margin-top:auto;
+  padding:1rem 0.75rem;
+  border-top:1px solid var(--border);
+  display:flex; flex-direction:column; gap:0.625rem;
+}
+.btn-new-campaign {
+  display:flex; align-items:center; justify-content:center; gap:0.5rem;
+  background:var(--dark); color:#fff;
+  padding:0.5625rem 1rem; border-radius:8px;
+  font-size:0.8125rem; font-weight:600;
+  transition:opacity 0.2s;
+}
+.btn-new-campaign:hover { opacity:0.85; }
+.sidebar-user {
+  display:flex; align-items:center; gap:0.625rem;
+  padding:0.25rem 0.25rem; border-radius:8px;
+}
+.sidebar-user-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--bg); border:1px solid var(--border); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:600; color:var(--text);
+}
+.sidebar-user-name { font-size:0.8rem; font-weight:500; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#sidebarClerkBtn { display:flex; align-items:center; }
+
+/* ── Main content ──────────────────────────────────────────────────────────────── */
+.main {
+  flex:1; margin-left:var(--sidebar-w);
+  display:flex; flex-direction:column; min-height:100vh;
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────────── */
+.page-header {
+  height:var(--header-h); padding:0 2rem;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:50;
+}
+.page-title { font-size:1rem; font-weight:700; letter-spacing:-0.01em; }
+.page-header-right { display:flex; align-items:center; gap:0.75rem; }
+.header-btn {
+  display:flex; align-items:center; gap:0.375rem;
+  font-size:0.8125rem; font-weight:500;
+  padding:0.375rem 0.875rem; border-radius:7px;
+  border:1px solid var(--border); color:var(--text);
+  transition:border-color 0.2s;
+}
+.header-btn:hover { border-color:var(--dark); }
+.header-btn-primary {
+  background:var(--dark); color:#fff; border-color:var(--dark);
+}
+.header-btn-primary:hover { opacity:0.85; }
+
+/* ── Views ──────────────────────────────────────────────────────────────────── */
+.view { display:none; flex:1; padding:2rem; }
+.view.active { display:block; }
+
+/* ── Stat cards ──────────────────────────────────────────────────────────────── */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:1px; background:var(--border);
+  border:1px solid var(--border); border-radius:var(--r);
+  overflow:hidden; margin-bottom:2rem;
+}
+@media(max-width:900px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
+.stat-card { background:var(--surface); padding:1.5rem 1.75rem; }
+.stat-icon {
+  width:32px; height:32px; border-radius:8px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:1rem; color:var(--muted);
+}
+.stat-n { font-size:2.25rem; font-weight:800; font-family:var(--mono); line-height:1; letter-spacing:-0.03em; color:var(--dark); margin-bottom:0.3rem; }
+.stat-l { font-size:0.8rem; color:var(--muted); font-weight:500; }
+.stat-delta { font-size:0.75rem; margin-top:0.375rem; color:var(--green); font-family:var(--mono); }
+.stat-delta.red { color:var(--red); }
+
+/* ── Overview grid ──────────────────────────────────────────────────────────── */
+.overview-grid { display:grid; grid-template-columns:1fr 320px; gap:1.5rem; }
+@media(max-width:960px) { .overview-grid { grid-template-columns:1fr; } }
+
+/* ── Section cards ──────────────────────────────────────────────────────────── */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden;
+}
+.card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1rem 1.25rem; border-bottom:1px solid var(--border2);
+}
+.card-title { font-size:0.875rem; font-weight:700; }
+.card-link { font-size:0.75rem; color:var(--purple); font-weight:500; cursor:pointer; }
+.card-link:hover { text-decoration:underline; }
+.card-body { padding:1.25rem; }
+
+/* ── Activity list ──────────────────────────────────────────────────────────── */
+.activity-list { display:flex; flex-direction:column; }
+.activity-item {
+  display:flex; align-items:center; gap:0.875rem;
+  padding:0.75rem 1.25rem; border-bottom:1px solid var(--border2);
+  transition:background 0.15s;
+}
+.activity-item:last-child { border-bottom:none; }
+.activity-item:hover { background:#faf9f7; }
+.activity-avatar {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:700; color:var(--muted);
+  text-transform:uppercase;
+}
+.activity-info { flex:1; min-width:0; }
+.activity-name { font-size:0.8125rem; font-weight:600; }
+.activity-sub  { font-size:0.75rem; color:var(--muted); margin-top:0.1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.activity-time { font-size:0.7rem; color:var(--muted2); font-family:var(--mono); flex-shrink:0; }
+
+/* ── Label breakdown ──────────────────────────────────────────────────────────── */
+.label-row {
+  display:flex; align-items:center; gap:0.75rem;
+  padding:0.625rem 1.25rem; border-bottom:1px solid var(--border2);
+}
+.label-row:last-child { border-bottom:none; }
+.label-pill {
+  font-size:0.7rem; font-weight:600; padding:0.2rem 0.55rem;
+  border-radius:100px; border:1px solid;
+  white-space:nowrap; flex-shrink:0;
+}
+.label-bar-wrap { flex:1; background:var(--bg); border-radius:100px; height:6px; overflow:hidden; }
+.label-bar { height:100%; border-radius:100px; transition:width 0.6s ease; }
+.label-count { font-size:0.75rem; font-family:var(--mono); color:var(--muted); flex-shrink:0; width:28px; text-align:right; }
+
+/* ── Label colors ──────────────────────────────────────────────────────────── */
+.lbl-no_response    { background:#f5f5f4; color:#57534e; border-color:#e7e5e4; }
+.lbl-interested     { background:var(--green-lt); color:var(--green); border-color:#bbf7d0; }
+.lbl-not_interested { background:var(--red-lt); color:var(--red); border-color:#fecaca; }
+.lbl-meeting_booked { background:var(--purple-lt); color:var(--purple); border-color:#c4b5fd; }
+.lbl-replied        { background:var(--blue-lt); color:var(--blue); border-color:#bfdbfe; }
+.lbl-bounced        { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+.lbl-unsubscribed   { background:#fafaf9; color:#78716c; border-color:#d6d3d1; }
+
+.bar-no_response    { background:#a8a29e; }
+.bar-interested     { background:#22c55e; }
+.bar-not_interested { background:#ef4444; }
+.bar-meeting_booked { background:var(--purple); }
+.bar-replied        { background:#3b82f6; }
+.bar-bounced        { background:#f97316; }
+.bar-unsubscribed   { background:#a8a29e; }
+
+/* ── Contacts table ──────────────────────────────────────────────────────────── */
+.table-toolbar {
+  display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;
+  padding:1rem 1.25rem; border-bottom:1px solid var(--border2);
+  background:var(--surface);
+}
+.search-box {
+  display:flex; align-items:center; gap:0.5rem;
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:0.4rem 0.75rem; flex:1; max-width:320px;
+  transition:border-color 0.2s;
+}
+.search-box:focus-within { border-color:var(--dark); }
+.search-box input { border:none; outline:none; background:transparent; font-size:0.8125rem; color:var(--text); width:100%; }
+.search-box svg { color:var(--muted); flex-shrink:0; }
+
+.filter-tabs { display:flex; gap:0.25rem; overflow-x:auto; }
+.filter-tab {
+  font-size:0.775rem; font-weight:500; padding:0.35rem 0.75rem;
+  border-radius:100px; border:1px solid var(--border); color:var(--muted);
+  cursor:pointer; white-space:nowrap; transition:all 0.15s; background:var(--surface);
+}
+.filter-tab:hover { border-color:var(--dark); color:var(--text); }
+.filter-tab.active { background:var(--dark); color:#fff; border-color:var(--dark); }
+
+.total-label { font-size:0.8rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
+
+.table-wrap { overflow-x:auto; }
+table.crm-table { width:100%; border-collapse:collapse; font-size:0.8125rem; }
+.crm-table th {
+  text-align:left; padding:0.625rem 1rem;
+  font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em;
+  color:var(--muted); background:#faf9f7; border-bottom:1px solid var(--border2);
+  white-space:nowrap;
+}
+.crm-table td { padding:0.75rem 1rem; border-bottom:1px solid var(--border2); vertical-align:middle; }
+.crm-table tr:last-child td { border-bottom:none; }
+.crm-table tr:hover td { background:#faf9f7; }
+
+.contact-cell { display:flex; flex-direction:column; gap:0.15rem; }
+.contact-name { font-weight:600; font-size:0.8125rem; }
+.contact-title { font-size:0.725rem; color:var(--muted); }
+.contact-email { font-family:var(--mono); font-size:0.775rem; color:var(--text); }
+.company-cell { font-size:0.8125rem; font-weight:500; }
+.company-domain { font-family:var(--mono); font-size:0.7rem; color:var(--muted); margin-top:0.1rem; }
+
+.status-badge {
+  font-family:var(--mono); font-size:0.65rem; font-weight:600;
+  padding:0.2rem 0.5rem; border-radius:4px; text-transform:uppercase; letter-spacing:0.05em;
+  white-space:nowrap;
+}
+.status-VERIFIED  { background:#dcfce7; color:#15803d; }
+.status-RISKY     { background:#fef2f2; color:#dc2626; }
+.status-UNKNOWN   { background:var(--purple-lt); color:var(--purple); }
+
+/* Label select */
+.label-select {
+  font-size:0.75rem; font-weight:600;
+  border:1px solid; border-radius:6px;
+  padding:0.25rem 0.5rem;
+  cursor:pointer; outline:none;
+  transition:box-shadow 0.2s;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2378746d' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 0.4rem center; padding-right:1.4rem;
+}
+.label-select:focus { box-shadow:0 0 0 2px rgba(91,63,255,0.2); }
+
+/* Follow-up date */
+.followup-date {
+  font-size:0.775rem; font-family:var(--mono);
+  border:1px solid var(--border); border-radius:6px;
+  padding:0.25rem 0.5rem; outline:none; color:var(--text); background:var(--surface);
+  transition:border-color 0.2s; width:130px;
+}
+.followup-date:focus { border-color:var(--dark); }
+.followup-date.overdue { border-color:#fca5a5; color:var(--red); }
+
+/* Notes btn */
+.notes-btn {
+  display:flex; align-items:center; gap:0.25rem;
+  font-size:0.75rem; color:var(--muted); padding:0.3rem 0.5rem;
+  border-radius:6px; border:1px solid var(--border); transition:all 0.15s;
+}
+.notes-btn:hover { border-color:var(--dark); color:var(--text); }
+.notes-btn.has-notes { border-color:#c4b5fd; color:var(--purple); background:var(--purple-lt); }
+
+/* Pagination */
+.pagination {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0.875rem 1.25rem; border-top:1px solid var(--border2);
+}
+.pagination-info { font-size:0.8rem; color:var(--muted); }
+.pagination-btns { display:flex; gap:0.375rem; }
+.page-btn {
+  width:30px; height:30px; border-radius:7px; font-size:0.8125rem;
+  border:1px solid var(--border); color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.page-btn:hover:not(:disabled) { border-color:var(--dark); }
+.page-btn.active { background:var(--dark); color:#fff; border-color:var(--dark); }
+.page-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+/* ── Campaigns ──────────────────────────────────────────────────────────────── */
+.run-table { width:100%; border-collapse:collapse; font-size:0.8125rem; }
+.run-table th { text-align:left; padding:0.625rem 1rem; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); background:#faf9f7; border-bottom:1px solid var(--border2); }
+.run-table td { padding:0.875rem 1rem; border-bottom:1px solid var(--border2); vertical-align:middle; }
+.run-table tr:last-child td { border-bottom:none; }
+.run-table tr:hover td { background:#faf9f7; }
+.run-domain { font-family:var(--mono); font-weight:600; }
+.run-date   { font-family:var(--mono); font-size:0.75rem; color:var(--muted); }
+.run-mode-tag {
+  font-family:var(--mono); font-size:0.65rem; font-weight:600;
+  padding:0.15rem 0.45rem; border-radius:3px; text-transform:uppercase;
+}
+.mode-live    { background:#fef2f2; color:#991b1b; }
+.mode-dry_run { background:#ecfdf5; color:#065f46; }
+.mode-mock    { background:#fef9c3; color:#713f12; }
+
+/* ── Follow-ups ──────────────────────────────────────────────────────────────── */
+.followup-section { display:flex; flex-direction:column; gap:1.5rem; }
+.followup-group-label {
+  font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--muted); padding:0 0 0.5rem;
+  border-bottom:1px solid var(--border2); margin-bottom:0.75rem;
+}
+.followup-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); overflow:hidden;
+}
+.followup-row {
+  display:flex; align-items:center; gap:1rem;
+  padding:0.875rem 1.25rem; border-bottom:1px solid var(--border2);
+  transition:background 0.15s;
+}
+.followup-row:last-child { border-bottom:none; }
+.followup-row:hover { background:#faf9f7; }
+.followup-date-chip {
+  font-family:var(--mono); font-size:0.725rem; font-weight:600;
+  padding:0.25rem 0.625rem; border-radius:6px; border:1px solid var(--border);
+  flex-shrink:0; min-width:90px; text-align:center;
+}
+.followup-date-chip.today { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+.followup-date-chip.overdue { background:var(--red-lt); color:var(--red); border-color:#fecaca; }
+.followup-date-chip.soon { background:var(--blue-lt); color:var(--blue); border-color:#bfdbfe; }
+.followup-info { flex:1; min-width:0; }
+.followup-name { font-weight:600; font-size:0.8125rem; }
+.followup-meta { font-size:0.75rem; color:var(--muted); margin-top:0.1rem; }
+.btn-done {
+  font-size:0.75rem; font-weight:600; color:var(--green);
+  padding:0.3rem 0.75rem; border-radius:6px; border:1px solid #bbf7d0;
+  background:var(--green-lt); transition:all 0.15s;
+}
+.btn-done:hover { background:#dcfce7; }
+
+/* ── Team ──────────────────────────────────────────────────────────────────── */
+.team-hero {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  padding:2.5rem; text-align:center; margin-bottom:1.5rem;
+}
+.team-hero-icon {
+  width:56px; height:56px; border-radius:14px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 1.25rem; color:var(--muted);
+}
+.team-hero h2 { font-size:1.25rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:-0.02em; }
+.team-hero p  { font-size:0.875rem; color:var(--muted); max-width:480px; margin:0 auto 1.5rem; line-height:1.7; }
+.member-list { display:flex; flex-direction:column; }
+.member-row {
+  display:flex; align-items:center; gap:1rem;
+  padding:0.875rem 1.25rem; border-bottom:1px solid var(--border2);
+}
+.member-row:last-child { border-bottom:none; }
+.member-avatar {
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.875rem; font-weight:700; flex-shrink:0;
+  color:#fff;
+}
+.member-info { flex:1; }
+.member-name { font-weight:600; font-size:0.875rem; }
+.member-role { font-size:0.75rem; color:var(--muted); }
+.member-badge {
+  font-size:0.65rem; font-weight:700; padding:0.2rem 0.5rem;
+  border-radius:4px; text-transform:uppercase; letter-spacing:0.06em;
+}
+.role-admin  { background:var(--purple-lt); color:var(--purple); }
+.role-member { background:#f5f5f4; color:#57534e; }
+
+/* ── Empty states ──────────────────────────────────────────────────────────── */
+.empty-state {
+  padding:4rem 2rem; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:1rem;
+}
+.empty-icon {
+  width:56px; height:56px; border-radius:14px;
+  background:var(--bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; color:var(--muted);
+}
+.empty-title { font-size:1rem; font-weight:700; }
+.empty-sub   { font-size:0.875rem; color:var(--muted); max-width:320px; line-height:1.65; }
+.empty-action {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:var(--dark); color:#fff;
+  padding:0.625rem 1.25rem; border-radius:8px;
+  font-size:0.875rem; font-weight:600; margin-top:0.5rem;
+  transition:opacity 0.2s;
+}
+.empty-action:hover { opacity:0.85; }
+
+/* ── Modal (notes) ──────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(17,17,16,0.55);
+  display:none; align-items:center; justify-content:center;
+  z-index:500; backdrop-filter:blur(3px); padding:1rem;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--surface); border-radius:var(--r);
+  padding:1.75rem; width:100%; max-width:520px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.2);
+  animation:modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.25rem; }
+.modal-title { font-size:1rem; font-weight:700; }
+.modal-sub   { font-size:0.8rem; color:var(--muted); margin-top:0.25rem; }
+.modal-close { color:var(--muted); padding:0.25rem; border-radius:5px; transition:all 0.15s; }
+.modal-close:hover { background:var(--bg); color:var(--text); }
+.modal-textarea {
+  width:100%; border:1px solid var(--border); border-radius:8px;
+  padding:0.875rem; font-size:0.875rem; line-height:1.6; resize:vertical;
+  min-height:140px; outline:none; color:var(--text);
+  transition:border-color 0.2s;
+}
+.modal-textarea:focus { border-color:var(--dark); }
+.modal-actions { display:flex; gap:0.625rem; justify-content:flex-end; margin-top:1rem; }
+.btn-modal-cancel { padding:0.5rem 1rem; border-radius:7px; border:1px solid var(--border); font-size:0.875rem; color:var(--muted); }
+.btn-modal-save   { padding:0.5rem 1.25rem; border-radius:7px; background:var(--dark); color:#fff; font-size:0.875rem; font-weight:600; }
+
+/* ── Auth gate ──────────────────────────────────────────────────────────────── */
+.auth-gate {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  z-index:1000; flex-direction:column; gap:1.5rem;
+  text-align:center; padding:2rem;
+}
+.auth-gate-logo { display:flex; align-items:center; gap:0.625rem; font-weight:800; font-size:1.125rem; }
+.auth-gate-logo-mark {
+  width:36px; height:36px; border-radius:9px; background:var(--dark);
+  color:#fff; font-family:var(--mono); font-size:0.8rem; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+}
+.auth-gate h2 { font-size:1.5rem; font-weight:800; letter-spacing:-0.02em; }
+.auth-gate p  { font-size:0.9375rem; color:var(--muted); max-width:360px; line-height:1.65; }
+.btn-auth {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:var(--dark); color:#fff;
+  padding:0.75rem 1.75rem; border-radius:100px;
+  font-size:0.9375rem; font-weight:600;
+  transition:opacity 0.2s;
+}
+.btn-auth:hover { opacity:0.85; }
+
+/* ── DB error banner ──────────────────────────────────────────────────────────── */
+.db-banner {
+  display:none; align-items:center; gap:0.75rem;
+  background:#fffbeb; border:1px solid #fde68a;
+  border-radius:8px; padding:0.875rem 1.25rem; margin-bottom:1.5rem;
+  font-size:0.8125rem; color:var(--amber); line-height:1.5;
+}
+.db-banner.show { display:flex; }
+.db-banner svg { flex-shrink:0; }
+
+/* ── Loaders ──────────────────────────────────────────────────────────────────── */
+.skeleton {
+  background:linear-gradient(90deg, var(--bg) 0%, #ede9e3 50%, var(--bg) 100%);
+  background-size:400% 100%; animation:shimmer 1.2s ease infinite;
+  border-radius:6px;
+}
+@keyframes shimmer { 0% { background-position:100% 0; } 100% { background-position:-100% 0; } }
+.loading-spinner {
+  width:20px; height:20px; border:2px solid var(--border);
+  border-top-color:var(--dark); border-radius:50%;
+  animation:spin 0.6s linear infinite; margin:2rem auto;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media(max-width:768px) {
+  .sidebar { width:60px; }
+  .logo-name, .logo-badge, .sidebar-section-label, .nav-item span, .btn-new-campaign span { display:none; }
+  .main { margin-left:60px; }
+  .nav-item { justify-content:center; padding:0.75rem; }
+  .nav-item .nav-icon { width:18px; height:18px; }
+}
+
+/* ── Utils ──────────────────────────────────────────────────────────────────── */
+.flex { display:flex; }
+.gap-1 { gap:0.5rem; }
+.mt-1 { margin-top:0.5rem; }
+.hidden { display:none !important; }
+.fade-in { animation:fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  </style>
+</head>
+<body>
+
+<!-- ── Auth Gate (shown while checking) ──────────────────────────────────────── -->
+<div id="authGate" class="auth-gate">
+  <div class="auth-gate-logo">
+    <div class="auth-gate-logo-mark">A</div>
+    Adrexon
+  </div>
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ── Notes Modal ───────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="notesModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="notesModalTitle">Contact Notes</div>
+        <div class="modal-sub" id="notesModalSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeNotesModal()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3 3 13"/></svg>
+      </button>
+    </div>
+    <textarea class="modal-textarea" id="notesText" placeholder="Add notes about this contact — call summary, key interest, context…"></textarea>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeNotesModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveNotes()">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── App ──────────────────────────────────────────────────────────────────── -->
+<div class="app" id="appShell" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">A</div>
+      <span class="logo-name">Adrexon</span>
+      <span class="logo-badge">CRM</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Workspace</div>
+      <button class="nav-item active" id="nav-overview" onclick="loadView('overview')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>
+        <span>Overview</span>
+      </button>
+      <button class="nav-item" id="nav-contacts" onclick="loadView('contacts')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg>
+        <span>Contacts</span>
+      </button>
+      <button class="nav-item" id="nav-campaigns" onclick="loadView('campaigns')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M13 2 2 6l4 2 7-6z"/><path d="M6 8l2.5 5L13 2"/></svg>
+        <span>Campaigns</span>
+      </button>
+      <button class="nav-item" id="nav-followups" onclick="loadView('followups')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="2" y="2.5" width="12" height="12" rx="1.5"/><path d="M5 1v3M11 1v3M2 6.5h12"/><path d="M8 9.5v2.5M6.5 11H10"/></svg>
+        <span>Follow-ups</span>
+        <span class="nav-badge hidden" id="followupsBadge">0</span>
+      </button>
+      <button class="nav-item" id="nav-team" onclick="loadView('team')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="5.5" cy="5" r="2.5"/><path d="M0 13.5c0-3 2.5-5 5.5-5"/><circle cx="11" cy="5" r="2.5"/><path d="M16 13.5c0-3-2.5-5-5.5-5"/><path d="M5.5 8.5c1-0.5 2-0.5 5.5 0"/></svg>
+        <span>Team</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="/" class="btn-new-campaign">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 1v12M1 7h12"/></svg>
+        <span>New Campaign</span>
+      </a>
+      <div id="sidebarClerkBtn" class="sidebar-user"></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-title" id="pageTitle">Overview</div>
+      <div class="page-header-right">
+        <a href="/" class="header-btn">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M13 2 2 6l4 2 7-6z"/><path d="M6 8l2.5 5L13 2"/></svg>
+          New Campaign
+        </a>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW VIEW ────────────────────────────────────────────────────── -->
+    <div id="view-overview" class="view active">
+      <div class="db-banner" id="dbBanner">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M8 1.5 14.5 13H1.5z"/><path d="M8 6v3.5M8 11.5h.01"/></svg>
+        <span id="dbBannerMsg">MongoDB not connected. Add <code>MONGODB_URI</code> to your <code>.env</code> file to enable the CRM.</span>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg></div><div class="stat-n skeleton" style="width:60px;height:36px"></div><div class="stat-l">Total Contacts</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M13 2 2 6l4 2 7-6z"/><path d="M6 8l2.5 5L13 2"/></svg></div><div class="stat-n skeleton" style="width:60px;height:36px"></div><div class="stat-l">Emails Sent</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M14 10c0 2-1.5 4-6 4S2 12 2 10V5c0-1.5 2-3 6-3s6 1.5 6 3"/><path d="M2 5c0 2 1.5 4 6 4s6-2 6-4"/></svg></div><div class="stat-n skeleton" style="width:60px;height:36px"></div><div class="stat-l">Campaigns Run</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="2" y="2.5" width="12" height="12" rx="1.5"/><path d="M5 1v3M11 1v3M2 6.5h12"/></svg></div><div class="stat-n skeleton" style="width:60px;height:36px"></div><div class="stat-l">Follow-ups Due</div></div>
+      </div>
+
+      <div class="overview-grid">
+        <!-- Recent contacts -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Contacts</span>
+            <span class="card-link" onclick="loadView('contacts')">View all →</span>
+          </div>
+          <div id="recentContactsList"><div class="loading-spinner"></div></div>
+        </div>
+
+        <!-- Label breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Response Breakdown</span>
+          </div>
+          <div id="labelBreakdown"><div class="loading-spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONTACTS VIEW ────────────────────────────────────────────────────── -->
+    <div id="view-contacts" class="view">
+      <div class="card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><path d="m12 12 2.5 2.5"/></svg>
+            <input type="text" id="contactSearch" placeholder="Search by name, email, company…" oninput="debouncedSearch()" />
+          </div>
+          <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-label="" onclick="setLabelFilter('')">All</button>
+            <button class="filter-tab" data-label="no_response" onclick="setLabelFilter('no_response')">No Response</button>
+            <button class="filter-tab" data-label="interested" onclick="setLabelFilter('interested')">Interested</button>
+            <button class="filter-tab" data-label="meeting_booked" onclick="setLabelFilter('meeting_booked')">Meeting Booked</button>
+            <button class="filter-tab" data-label="replied" onclick="setLabelFilter('replied')">Replied</button>
+            <button class="filter-tab" data-label="not_interested" onclick="setLabelFilter('not_interested')">Not Interested</button>
+            <button class="filter-tab" data-label="bounced" onclick="setLabelFilter('bounced')">Bounced</button>
+          </div>
+          <span class="total-label" id="contactsTotalLabel"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="crm-table">
+            <thead>
+              <tr>
+                <th>Contact</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Label</th>
+                <th>Follow-up</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="contactsBody">
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="contactsPagination" style="display:none">
+          <span class="pagination-info" id="paginationInfo"></span>
+          <div class="pagination-btns" id="paginationBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CAMPAIGNS VIEW ───────────────────────────────────────────────────── -->
+    <div id="view-campaigns" class="view">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="campaignsTitle">Campaign History</span>
+          <a href="/" class="header-btn header-btn-primary" style="font-size:0.775rem;padding:0.3rem 0.75rem">
+            + New Campaign
+          </a>
+        </div>
+        <div class="table-wrap">
+          <table class="run-table">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Date</th>
+                <th>Companies</th>
+                <th>Contacts</th>
+                <th>Sent</th>
+                <th>Mode</th>
+              </tr>
+            </thead>
+            <tbody id="campaignsBody">
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOLLOW-UPS VIEW ──────────────────────────────────────────────────── -->
+    <div id="view-followups" class="view">
+      <div id="followupsContent"><div class="loading-spinner"></div></div>
+    </div>
+
+    <!-- ── TEAM VIEW ────────────────────────────────────────────────────────── -->
+    <div id="view-team" class="view">
+      <div id="teamContent"><div class="loading-spinner"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── State ─────────────────────────────────────────────────────────────────── */
+let CLERK_ON = false, CLERK_READY = false;
+let currentView = 'overview';
+let contactsPage = 1, contactsLabel = '', contactsSearch = '';
+let notesContactId = '', notesOriginal = '';
+const LABELS = {
+  no_response:    { text: 'No Response',    cls: 'lbl-no_response' },
+  interested:     { text: 'Interested',     cls: 'lbl-interested' },
+  not_interested: { text: 'Not Interested', cls: 'lbl-not_interested' },
+  meeting_booked: { text: 'Meeting Booked', cls: 'lbl-meeting_booked' },
+  replied:        { text: 'Replied',        cls: 'lbl-replied' },
+  bounced:        { text: 'Bounced',        cls: 'lbl-bounced' },
+  unsubscribed:   { text: 'Unsubscribed',   cls: 'lbl-unsubscribed' },
+};
+
+/* ── Auth headers ──────────────────────────────────────────────────────────── */
+async function authHeaders() {
+  if (CLERK_ON && CLERK_READY && window.Clerk && Clerk.session) {
+    try {
+      const t = await Clerk.session.getToken();
+      if (t) return { 'Authorization': 'Bearer ' + t };
+    } catch (_) {}
+  }
+  return {};
+}
+
+/* ── API helpers ───────────────────────────────────────────────────────────── */
+async function apiFetch(path, options = {}) {
+  const hdrs = await authHeaders();
+  const res = await fetch(path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...hdrs, ...(options.headers || {}) },
+  });
+  return res.json();
+}
+
+/* ── Clerk init ────────────────────────────────────────────────────────────── */
+async function initAuth() {
+  let cfg = {};
+  try { cfg = await fetch('/api/config').then(r => r.json()); } catch (_) {}
+
+  if (!cfg.clerk_enabled) {
+    CLERK_ON = false;
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+    loadView('overview');
+    renderSidebarUser(null);
+    return;
+  }
+
+  CLERK_ON = true;
+  const s = document.createElement('script');
+  s.setAttribute('data-clerk-publishable-key', cfg.clerk_publishable_key);
+  s.src = cfg.clerk_frontend_api + '/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+  s.async = true; s.crossOrigin = 'anonymous';
+  s.onload = async () => {
+    try {
+      await Clerk.load();
+      CLERK_READY = true;
+      if (!Clerk.user) {
+        showSignInGate();
+        Clerk.addListener(() => {
+          if (Clerk.user) {
+            document.getElementById('authGate').style.display = 'none';
+            document.getElementById('appShell').style.display = 'flex';
+            renderSidebarUser(Clerk.user);
+            loadView('overview');
+          }
+        });
+      } else {
+        document.getElementById('authGate').style.display = 'none';
+        document.getElementById('appShell').style.display = 'flex';
+        renderSidebarUser(Clerk.user);
+        loadView('overview');
+      }
+    } catch (e) { console.error('Clerk load failed', e); }
+  };
+  document.head.appendChild(s);
+}
+
+function showSignInGate() {
+  const gate = document.getElementById('authGate');
+  gate.innerHTML = `
+    <div class="auth-gate-logo">
+      <div class="auth-gate-logo-mark">A</div>
+      Adrexon CRM
+    </div>
+    <h2>Sign in to your workspace</h2>
+    <p>Access your contacts, campaigns, and follow-up pipeline. Sign in to continue.</p>
+    <button class="btn-auth" onclick="Clerk.openSignIn({})">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3l5 5-5 5M15 8H6M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3"/></svg>
+      Sign in
+    </button>
+    <a href="/" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem">← Back to home</a>
+  `;
+}
+
+function renderSidebarUser(user) {
+  const el = document.getElementById('sidebarClerkBtn');
+  if (!el) return;
+  if (CLERK_ON && CLERK_READY && window.Clerk && Clerk.user) {
+    el.innerHTML = '<div id="clerkSidebarMount"></div>';
+    try {
+      Clerk.mountUserButton(document.getElementById('clerkSidebarMount'), { afterSignOutUrl: '/' });
+    } catch (_) {}
+  } else if (user) {
+    const initials = ((user.firstName||'?')[0] + (user.lastName||'?')[0]).toUpperCase();
+    el.innerHTML = `<div class="sidebar-user-avatar">${initials}</div><span class="sidebar-user-name">${esc(user.firstName || user.emailAddresses?.[0]?.emailAddress || 'You')}</span>`;
+  }
+}
+
+/* ── View routing ──────────────────────────────────────────────────────────── */
+const VIEW_TITLES = {
+  overview: 'Overview',
+  contacts: 'Contacts',
+  campaigns: 'Campaigns',
+  followups: 'Follow-ups',
+  team: 'Team',
+};
+
+function loadView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const view = document.getElementById(`view-${name}`);
+  const btn  = document.getElementById(`nav-${name}`);
+  if (view) { view.classList.add('active'); view.classList.add('fade-in'); }
+  if (btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent = VIEW_TITLES[name] || name;
+  currentView = name;
+
+  if (name === 'overview')   loadOverview();
+  if (name === 'contacts')   loadContacts(1);
+  if (name === 'campaigns')  loadCampaigns();
+  if (name === 'followups')  loadFollowups();
+  if (name === 'team')       loadTeam();
+}
+
+/* ── DB banner ─────────────────────────────────────────────────────────────── */
+function showDbBanner(msg) {
+  const b = document.getElementById('dbBanner');
+  if (!b) return;
+  if (msg) {
+    document.getElementById('dbBannerMsg').textContent = msg;
+    b.classList.add('show');
+  } else {
+    b.classList.remove('show');
+  }
+}
+
+/* ── OVERVIEW ──────────────────────────────────────────────────────────────── */
+async function loadOverview() {
+  try {
+    const data = await apiFetch('/api/crm/overview');
+    if (data.error) { showDbBanner(data.error); renderOverviewEmpty(); return; }
+    showDbBanner(null);
+    renderStats(data);
+    renderRecentContacts(data.recent_contacts || []);
+    renderLabelBreakdown(data.label_counts || {}, data.total_contacts || 0);
+    // Update follow-ups badge
+    if (data.followups_due > 0) {
+      const badge = document.getElementById('followupsBadge');
+      badge.textContent = data.followups_due;
+      badge.classList.remove('hidden');
+    }
+  } catch (e) {
+    showDbBanner('Could not load overview — is the server running?');
+  }
+}
+
+function renderStats(data) {
+  const grid = document.getElementById('statsGrid');
+  const stats = [
+    { n: data.total_contacts, l: 'Total Contacts', icon: `<circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/>` },
+    { n: data.total_sent,     l: 'Emails Sent',    icon: `<path d="M13 2 2 6l4 2 7-6z"/><path d="M6 8l2.5 5L13 2"/>` },
+    { n: data.total_runs,     l: 'Campaigns Run',  icon: `<path d="M14 10c0 2-1.5 4-6 4S2 12 2 10V5c0-1.5 2-3 6-3s6 1.5 6 3"/><path d="M2 5c0 2 1.5 4 6 4s6-2 6-4"/>` },
+    { n: data.followups_due,  l: 'Follow-ups Due', icon: `<rect x="2" y="2.5" width="12" height="12" rx="1.5"/><path d="M5 1v3M11 1v3M2 6.5h12"/>` },
+  ];
+  grid.innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">${s.icon}</svg></div>
+      <div class="stat-n">${s.n}</div>
+      <div class="stat-l">${s.l}</div>
+    </div>
+  `).join('');
+}
+
+function renderOverviewEmpty() {
+  document.getElementById('statsGrid').innerHTML = [
+    'Total Contacts', 'Emails Sent', 'Campaigns Run', 'Follow-ups Due'
+  ].map(l => `<div class="stat-card"><div class="stat-n">—</div><div class="stat-l">${l}</div></div>`).join('');
+  document.getElementById('recentContactsList').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg></div>
+      <div class="empty-title">No contacts yet</div>
+      <div class="empty-sub">Run your first campaign to start building your CRM.</div>
+      <a href="/" class="empty-action">Start a Campaign →</a>
+    </div>`;
+  document.getElementById('labelBreakdown').innerHTML = '';
+}
+
+function renderRecentContacts(contacts) {
+  const el = document.getElementById('recentContactsList');
+  if (!contacts.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg></div>
+      <div class="empty-title">No contacts yet</div>
+      <div class="empty-sub">Run your first campaign to start building your CRM.</div>
+      <a href="/" class="empty-action">Start a Campaign →</a>
+    </div>`;
+    return;
+  }
+  el.innerHTML = '<div class="activity-list">' + contacts.map(c => {
+    const initials = ((c.name||'?')[0]).toUpperCase();
+    const label = LABELS[c.label] || LABELS.no_response;
+    const ts = c.last_emailed_at ? fmtRelative(c.last_emailed_at) : '';
+    return `<div class="activity-item">
+      <div class="activity-avatar">${initials}</div>
+      <div class="activity-info">
+        <div class="activity-name">${esc(c.name || c.email)}</div>
+        <div class="activity-sub">${esc(c.title ? c.title + ' · ' + (c.company_name||c.company_domain) : (c.company_name||c.company_domain||''))}</div>
+      </div>
+      <span class="label-pill ${label.cls}">${label.text}</span>
+      <span class="activity-time">${ts}</span>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderLabelBreakdown(counts, total) {
+  const el = document.getElementById('labelBreakdown');
+  const order = ['interested', 'meeting_booked', 'replied', 'no_response', 'not_interested', 'bounced', 'unsubscribed'];
+  const bars = {
+    no_response:'#a8a29e', interested:'#22c55e', not_interested:'#ef4444',
+    meeting_booked:'#5b3fff', replied:'#3b82f6', bounced:'#f97316', unsubscribed:'#a8a29e'
+  };
+  if (!total) { el.innerHTML = '<div class="empty-state" style="padding:2rem"><div class="empty-sub">No data yet.</div></div>'; return; }
+  el.innerHTML = order.map(k => {
+    const n = counts[k] || 0;
+    const pct = total ? Math.round(n / total * 100) : 0;
+    const label = LABELS[k] || { text: k, cls: 'lbl-no_response' };
+    return `<div class="label-row">
+      <span class="label-pill ${label.cls}" style="min-width:110px;text-align:center">${label.text}</span>
+      <div class="label-bar-wrap"><div class="label-bar" style="width:${pct}%;background:${bars[k]}"></div></div>
+      <span class="label-count">${n}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ── CONTACTS ──────────────────────────────────────────────────────────────── */
+let _searchTimer = null;
+function debouncedSearch() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => { contactsSearch = document.getElementById('contactSearch').value.trim(); loadContacts(1); }, 350);
+}
+
+function setLabelFilter(label) {
+  contactsLabel = label;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.label === label));
+  loadContacts(1);
+}
+
+async function loadContacts(page) {
+  contactsPage = page;
+  const body = document.getElementById('contactsBody');
+  body.innerHTML = '<tr><td colspan="7"><div class="loading-spinner"></div></td></tr>';
+
+  const params = new URLSearchParams({ page, per_page: 25 });
+  if (contactsLabel) params.set('label', contactsLabel);
+  if (contactsSearch) params.set('search', contactsSearch);
+
+  try {
+    const data = await apiFetch(`/api/crm/contacts?${params}`);
+    if (data.error) { body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-sub">${esc(data.error)}</div></div></td></tr>`; return; }
+    renderContactsTable(data.contacts || [], data.total, page, data.per_page);
+  } catch (e) {
+    body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-sub">Failed to load contacts.</div></div></td></tr>';
+  }
+}
+
+function renderContactsTable(contacts, total, page, perPage) {
+  const body = document.getElementById('contactsBody');
+  const totalEl = document.getElementById('contactsTotalLabel');
+  const pag = document.getElementById('contactsPagination');
+
+  totalEl.textContent = `${total} contact${total !== 1 ? 's' : ''}`;
+
+  if (!contacts.length) {
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/></svg></div>
+      <div class="empty-title">No contacts found</div>
+      <div class="empty-sub">Try a different search or label filter.</div>
+    </div></td></tr>`;
+    pag.style.display = 'none';
+    return;
+  }
+
+  body.innerHTML = contacts.map(c => {
+    const label = LABELS[c.label] || LABELS.no_response;
+    const statusCls = 'status-' + (c.email_status || 'UNKNOWN');
+    const statusText = c.email_status || 'UNKNOWN';
+    const today = new Date().toISOString().slice(0, 10);
+    const fupClass = c.follow_up_date ? (c.follow_up_date < today ? 'overdue' : '') : '';
+    const hasNotes = c.notes && c.notes.trim();
+
+    const labelOptions = Object.entries(LABELS).map(([k, v]) =>
+      `<option value="${k}" ${c.label === k ? 'selected' : ''}>${v.text}</option>`
+    ).join('');
+
+    return `<tr>
+      <td>
+        <div class="contact-cell">
+          <div class="contact-name">${esc(c.name || '—')}</div>
+          <div class="contact-title">${esc(c.title || '')}</div>
+        </div>
+      </td>
+      <td>
+        <div class="company-cell">${esc(c.company_name || '—')}</div>
+        <div class="company-domain">${esc(c.company_domain || '')}</div>
+      </td>
+      <td><span class="contact-email">${esc(c.email)}</span></td>
+      <td><span class="status-badge ${statusCls}">${statusText}</span></td>
+      <td>
+        <select class="label-select ${label.cls}" onchange="updateLabel('${c._id}', this.value, this)">
+          ${labelOptions}
+        </select>
+      </td>
+      <td>
+        <input type="date" class="followup-date ${fupClass}"
+          value="${c.follow_up_date || ''}"
+          onchange="setFollowup('${c._id}', this.value)"
+          title="Set follow-up date"
+        />
+      </td>
+      <td>
+        <button class="notes-btn${hasNotes ? ' has-notes' : ''}" onclick="openNotesModal('${c._id}', '${esc(c.name || c.email)}', '${esc(c.notes || '').replace(/'/g, '\\&#39;')}')">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/><path d="M4 5h6M4 7.5h6M4 10h3"/></svg>
+          ${hasNotes ? 'Notes' : 'Add'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(total / perPage);
+  if (totalPages > 1) {
+    pag.style.display = 'flex';
+    document.getElementById('paginationInfo').textContent = `Page ${page} of ${totalPages} · ${total} total`;
+    const btns = document.getElementById('paginationBtns');
+    btns.innerHTML = `
+      <button class="page-btn" onclick="loadContacts(${page - 1})" ${page <= 1 ? 'disabled' : ''}>←</button>
+      ${Array.from({length: Math.min(totalPages, 7)}, (_, i) => {
+        const p = i + 1;
+        return `<button class="page-btn${p === page ? ' active' : ''}" onclick="loadContacts(${p})">${p}</button>`;
+      }).join('')}
+      <button class="page-btn" onclick="loadContacts(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>→</button>
+    `;
+  } else {
+    pag.style.display = 'none';
+  }
+}
+
+async function updateLabel(id, label, selectEl) {
+  const prevCls = Array.from(selectEl.classList).find(c => c.startsWith('lbl-'));
+  if (prevCls) selectEl.classList.remove(prevCls);
+  selectEl.classList.add((LABELS[label] || LABELS.no_response).cls);
+  try {
+    await apiFetch(`/api/crm/contacts/${id}/label`, { method: 'PATCH', body: JSON.stringify({ label }) });
+  } catch (_) {}
+}
+
+async function setFollowup(id, date) {
+  try {
+    await apiFetch(`/api/crm/contacts/${id}/followup`, { method: 'POST', body: JSON.stringify({ follow_up_date: date || null }) });
+  } catch (_) {}
+}
+
+/* ── Notes modal ───────────────────────────────────────────────────────────── */
+function openNotesModal(id, name, notes) {
+  notesContactId = id;
+  notesOriginal  = notes;
+  document.getElementById('notesModalTitle').textContent = 'Notes for ' + name;
+  document.getElementById('notesModalSub').textContent = 'Add context, call summaries, or follow-up reminders.';
+  document.getElementById('notesText').value = notes;
+  document.getElementById('notesModal').classList.add('open');
+  setTimeout(() => document.getElementById('notesText').focus(), 100);
+}
+
+function closeNotesModal() {
+  document.getElementById('notesModal').classList.remove('open');
+}
+
+async function saveNotes() {
+  const notes = document.getElementById('notesText').value;
+  try {
+    await apiFetch(`/api/crm/contacts/${notesContactId}/notes`, { method: 'PATCH', body: JSON.stringify({ notes }) });
+    closeNotesModal();
+    if (currentView === 'contacts') loadContacts(contactsPage);
+  } catch (_) { alert('Failed to save notes.'); }
+}
+
+document.getElementById('notesModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeNotesModal();
+});
+
+/* ── CAMPAIGNS ─────────────────────────────────────────────────────────────── */
+async function loadCampaigns() {
+  const body = document.getElementById('campaignsBody');
+  body.innerHTML = '<tr><td colspan="6"><div class="loading-spinner"></div></td></tr>';
+  try {
+    const data = await apiFetch('/api/crm/runs');
+    if (data.error) { body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-sub">${esc(data.error)}</div></div></td></tr>`; return; }
+    renderCampaigns(data.runs || [], data.total);
+  } catch (_) {
+    body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-sub">Failed to load campaigns.</div></div></td></tr>';
+  }
+}
+
+function renderCampaigns(runs, total) {
+  document.getElementById('campaignsTitle').textContent = `Campaign History${total ? ` (${total})` : ''}`;
+  const body = document.getElementById('campaignsBody');
+  if (!runs.length) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 2 2 6l4 2 7-6z"/><path d="M6 8l2.5 5L13 2"/></svg></div>
+      <div class="empty-title">No campaigns yet</div>
+      <div class="empty-sub">Run your first campaign to see it here.</div>
+      <a href="/" class="empty-action">Start a Campaign →</a>
+    </div></td></tr>`;
+    return;
+  }
+  body.innerHTML = runs.map(r => {
+    const stats = r.stats || {};
+    const mode = stats.dry_run ? 'dry_run' : r.mode || 'live';
+    const modeLabel = { live: 'Live', dry_run: 'Dry-run', mock: 'Mock' }[mode] || mode;
+    const date = r.created_at ? fmtDate(r.created_at) : '—';
+    return `<tr>
+      <td><div class="run-domain">${esc(r.domain || '—')}</div></td>
+      <td><div class="run-date">${date}</div></td>
+      <td>${stats.companies || '—'}</td>
+      <td>${stats.contacts || '—'}</td>
+      <td><strong>${stats.sent || 0}</strong></td>
+      <td><span class="run-mode-tag mode-${mode}">${modeLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── FOLLOW-UPS ────────────────────────────────────────────────────────────── */
+async function loadFollowups() {
+  const el = document.getElementById('followupsContent');
+  el.innerHTML = '<div class="loading-spinner"></div>';
+  try {
+    const data = await apiFetch('/api/crm/followups');
+    if (data.error) { el.innerHTML = `<div class="empty-state"><div class="empty-sub">${esc(data.error)}</div></div>`; return; }
+    renderFollowups(data.followups || [], data.today);
+  } catch (_) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-sub">Failed to load follow-ups.</div></div>';
+  }
+}
+
+function renderFollowups(items, today) {
+  const el = document.getElementById('followupsContent');
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="2.5" width="12" height="12" rx="1.5"/><path d="M5 1v3M11 1v3M2 6.5h12"/><path d="M1.5 10.5l3 3 6-6"/></svg></div>
+      <div class="empty-title">No upcoming follow-ups</div>
+      <div class="empty-sub">Schedule follow-ups on your contacts to see them here.</div>
+      <button class="empty-action" onclick="loadView('contacts')">Go to Contacts →</button>
+    </div>`;
+    return;
+  }
+
+  const groups = { overdue: [], today: [], upcoming: [] };
+  items.forEach(c => {
+    if (c.follow_up_date < today) groups.overdue.push(c);
+    else if (c.follow_up_date === today) groups.today.push(c);
+    else groups.upcoming.push(c);
+  });
+
+  const renderGroup = (list, title, chipCls) => {
+    if (!list.length) return '';
+    return `<div class="followup-card">
+      <div class="card-header"><span class="card-title">${title}</span></div>
+      <div>
+        ${list.map(c => {
+          const label = LABELS[c.label] || LABELS.no_response;
+          return `<div class="followup-row">
+            <span class="followup-date-chip ${chipCls}">${fmtDate(c.follow_up_date)}</span>
+            <div class="followup-info">
+              <div class="followup-name">${esc(c.name || c.email)}</div>
+              <div class="followup-meta">${esc(c.title ? c.title + ' · ' : '')}${esc(c.company_name || c.company_domain || '')} &nbsp;·&nbsp; <span class="label-pill ${label.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${label.text}</span></div>
+            </div>
+            <button class="btn-done" onclick="markFollowupDone('${c._id}')">Mark done ✓</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  };
+
+  el.innerHTML = `<div class="followup-section">
+    ${renderGroup(groups.overdue, '⚠ Overdue', 'overdue')}
+    ${renderGroup(groups.today, '📅 Due Today', 'today')}
+    ${renderGroup(groups.upcoming, 'Upcoming', 'soon')}
+  </div>`;
+}
+
+async function markFollowupDone(id) {
+  try {
+    await apiFetch(`/api/crm/contacts/${id}/followup`, { method: 'POST', body: JSON.stringify({ follow_up_date: null }) });
+    loadFollowups();
+    const badge = document.getElementById('followupsBadge');
+    const n = parseInt(badge.textContent) - 1;
+    if (n <= 0) badge.classList.add('hidden');
+    else badge.textContent = n;
+  } catch (_) {}
+}
+
+/* ── TEAM ──────────────────────────────────────────────────────────────────── */
+async function loadTeam() {
+  const el = document.getElementById('teamContent');
+  el.innerHTML = '<div class="loading-spinner"></div>';
+
+  const colors = ['#5b3fff','#15803d','#1d4ed8','#b45309','#c2410c','#0891b2','#7c3aed'];
+  let orgName = 'Personal Workspace';
+  let members = [];
+
+  if (CLERK_READY && window.Clerk) {
+    if (Clerk.organization) {
+      orgName = Clerk.organization.name || 'Team Workspace';
+      try {
+        const list = await Clerk.organization.getMemberships();
+        members = list.data || list || [];
+      } catch (_) {}
+    }
+    if (Clerk.user && !members.length) {
+      const u = Clerk.user;
+      members = [{ publicUserData: { firstName: u.firstName, lastName: u.lastName, identifier: u.emailAddresses?.[0]?.emailAddress || '' }, role: 'org:admin' }];
+    }
+  }
+
+  el.innerHTML = `
+    <div class="team-hero">
+      <div class="team-hero-icon">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5.5" cy="5" r="2.5"/><path d="M0 13.5c0-3 2.5-5 5.5-5"/><circle cx="11" cy="5" r="2.5"/><path d="M16 13.5c0-3-2.5-5-5.5-5"/><path d="M5.5 8.5c1-0.5 2-0.5 5.5 0"/></svg>
+      </div>
+      <h2>${esc(orgName)}</h2>
+      <p>All campaigns and contacts in this workspace are shared across your team. Invite members via your Clerk dashboard.</p>
+      ${Clerk?.organization ? `<a href="#" class="empty-action" onclick="Clerk.openOrganizationProfile()">Manage Team</a>` : `<a href="#" class="empty-action" onclick="Clerk.openCreateOrganization?.()">Create Team Workspace</a>`}
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Members (${members.length})</span></div>
+      <div class="member-list">
+        ${members.map((m, i) => {
+          const ud = m.publicUserData || {};
+          const name = [ud.firstName, ud.lastName].filter(Boolean).join(' ') || ud.identifier || 'Member';
+          const email = ud.identifier || '';
+          const role = m.role === 'org:admin' ? 'Admin' : 'Member';
+          const roleCls = m.role === 'org:admin' ? 'role-admin' : 'role-member';
+          const color = colors[i % colors.length];
+          const initials = name.slice(0, 2).toUpperCase();
+          return `<div class="member-row">
+            <div class="member-avatar" style="background:${color}">${initials}</div>
+            <div class="member-info">
+              <div class="member-name">${esc(name)}</div>
+              <div class="member-role">${esc(email)}</div>
+            </div>
+            <span class="member-badge ${roleCls}">${role}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────────────── */
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (_) { return iso; }
+}
+
+function fmtRelative(iso) {
+  if (!iso) return '';
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1)   return 'just now';
+    if (mins < 60)  return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24)   return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30)  return `${days}d ago`;
+    return fmtDate(iso);
+  } catch (_) { return ''; }
+}
+
+/* ── Boot ──────────────────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', initAuth);
+</script>
+</body>
+</html>
